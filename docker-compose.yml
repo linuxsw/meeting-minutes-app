@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  # Meeting Minutes Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      - ollama
+    networks:
+      - meeting-minutes-network
+
+  # Ollama service for local AI
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - meeting-minutes-network
+
+networks:
+  meeting-minutes-network:
+    driver: bridge
+
+volumes:
+  ollama_data:
