@@ -1,68 +1,101 @@
-'use client'
 
-import { ProcessedTranscript, extractKeyPoints, extractActionItems } from './transcript-processor'
-import { MeetingTemplate, getTemplateById } from './meeting-templates'
+"use client";
+
+import { MeetingTemplate, getTemplateById } from "./meeting-templates";
+
+// Updated interface to match the data from audio_processor.py and review page
+export interface TranscriptSegment {
+  speaker: string; // This is the final speaker name (e.g., "Alice", "Speaker 1")
+  start_time: number;
+  end_time: number;
+  text: string;
+}
 
 export interface MeetingData {
-  title: string
-  date: string
-  attendees: string[]
-  location?: string
-  startTime?: string
-  endTime?: string
-  previousActionItems?: string[]
+  title: string;
+  date: string;
+  attendees: string[]; // This could be derived from unique speaker names in segments or provided separately
+  location?: string;
+  startTime?: string;
+  endTime?: string;
+  previousActionItems?: string[];
 }
 
 export interface GeneratedDocument {
-  title: string
-  content: string
-  format: 'pdf' | 'docx' | 'html' | 'txt'
+  title: string;
+  content: string;
+  format: "pdf" | "docx" | "html" | "txt";
 }
 
-// Function to generate meeting minutes content based on template and transcript
+// Helper to extract key points and action items (simplified)
+// In a real AI-enhanced app, these would come from an AI service call
+function extractKeyPointsFromSegments(segments: TranscriptSegment[]): string[] {
+  // Simple extraction: take first few words of longer segments, or segments with keywords
+  const points: string[] = [];
+  segments.forEach(seg => {
+    if (seg.text.length > 50 || seg.text.toLowerCase().includes("important") || seg.text.toLowerCase().includes("decision")) {
+      points.push(`${seg.speaker}: ${seg.text.substring(0, 100)}${seg.text.length > 100 ? "..." : ""}`);
+    }
+  });
+  return points.slice(0, 5); // Limit to 5 key points for brevity
+}
+
+function extractActionItemsFromSegments(segments: TranscriptSegment[]): string[] {
+  const items: string[] = [];
+  segments.forEach(seg => {
+    if (seg.text.toLowerCase().includes("action item") || seg.text.toLowerCase().includes("to do") || seg.text.toLowerCase().match(/\b(will|should|needs to) (\w+\s){1,5}/i)) {
+      items.push(`${seg.speaker} to: ${seg.text}`);
+    }
+  });
+  return items;
+}
+
+
+// Function to generate meeting minutes content based on template and new transcript segment structure
 export function generateMeetingMinutes(
   templateId: string,
-  transcript: ProcessedTranscript,
+  processedSegments: TranscriptSegment[], // Changed from ProcessedTranscript
   meetingData: MeetingData,
-  format: 'pdf' | 'docx' | 'html' | 'txt' = 'pdf'
+  format: "pdf" | "docx" | "html" | "txt" = "pdf"
 ): GeneratedDocument | null {
-  // Get the template
-  const template = getTemplateById(templateId)
+  const template = getTemplateById(templateId);
   if (!template) {
-    console.error(`Template with ID ${templateId} not found`)
-    return null
+    console.error(`Template with ID ${templateId} not found`);
+    return null;
   }
-  
-  // Extract key points and action items from transcript
-  const keyPoints = extractKeyPoints(transcript)
-  const actionItems = extractActionItems(transcript)
-  
-  // Generate content based on format
+
+  // Extract key points and action items from the processed segments
+  const keyPoints = extractKeyPointsFromSegments(processedSegments);
+  const actionItems = extractActionItemsFromSegments(processedSegments);
+
+  // Derive attendees from speaker names if not explicitly provided in meetingData
+  if (!meetingData.attendees || meetingData.attendees.length === 0) {
+    const uniqueSpeakers = Array.from(new Set(processedSegments.map(seg => seg.speaker)));
+    meetingData.attendees = uniqueSpeakers.filter(name => name && name.trim() !== "");
+  }
+
   switch (format) {
-    case 'html':
-      return generateHtmlMinutes(template, transcript, meetingData, keyPoints, actionItems)
-    case 'txt':
-      return generateTextMinutes(template, transcript, meetingData, keyPoints, actionItems)
-    case 'docx':
-      // In a real application, this would generate a DOCX file
-      // For now, we'll use the text format as a placeholder
-      return generateTextMinutes(template, transcript, meetingData, keyPoints, actionItems, 'docx')
-    case 'pdf':
+    case "html":
+      return generateHtmlMinutes(template, processedSegments, meetingData, keyPoints, actionItems);
+    case "txt":
+      return generateTextMinutes(template, processedSegments, meetingData, keyPoints, actionItems);
+    case "docx":
+      // Placeholder: uses text format for DOCX generation
+      return generateTextMinutes(template, processedSegments, meetingData, keyPoints, actionItems, "docx");
+    case "pdf":
     default:
-      // In a real application, this would generate a PDF file
-      // For now, we'll use the HTML format as a placeholder
-      return generateHtmlMinutes(template, transcript, meetingData, keyPoints, actionItems, 'pdf')
+      // Placeholder: uses HTML format for PDF generation
+      return generateHtmlMinutes(template, processedSegments, meetingData, keyPoints, actionItems, "pdf");
   }
 }
 
-// Generate HTML meeting minutes
 function generateHtmlMinutes(
   template: MeetingTemplate,
-  transcript: ProcessedTranscript,
+  segments: TranscriptSegment[],
   meetingData: MeetingData,
   keyPoints: string[],
   actionItems: string[],
-  format: 'html' | 'pdf' = 'html'
+  format: "html" | "pdf" = "html"
 ): GeneratedDocument {
   let content = `<!DOCTYPE html>
 <html>
@@ -71,326 +104,271 @@ function generateHtmlMinutes(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${meetingData.title || template.name}</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      color: #333;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    h1 {
-      color: #2c3e50;
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 10px;
-    }
-    h2 {
-      color: #2980b9;
-      margin-top: 20px;
-    }
-    .section {
-      margin-bottom: 20px;
-    }
-    .attendees {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .attendee {
-      background-color: #f0f0f0;
-      padding: 5px 10px;
-      border-radius: 15px;
-      font-size: 14px;
-    }
-    .action-item {
-      margin-bottom: 10px;
-      padding-left: 20px;
-      position: relative;
-    }
-    .action-item:before {
-      content: "•";
-      position: absolute;
-      left: 0;
-    }
-    .footer {
-      margin-top: 40px;
-      border-top: 1px solid #ddd;
-      padding-top: 10px;
-      font-size: 12px;
-      color: #777;
-    }
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+    h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+    h2 { color: #2980b9; margin-top: 20px; }
+    .section { margin-bottom: 20px; }
+    .attendees { display: flex; flex-wrap: wrap; gap: 10px; }
+    .attendee { background-color: #f0f0f0; padding: 5px 10px; border-radius: 15px; font-size: 14px; }
+    .action-item, .key-point { margin-bottom: 10px; padding-left: 20px; position: relative; }
+    .action-item:before, .key-point:before { content: "•"; position: absolute; left: 0; }
+    .transcript-segment { margin-bottom: 10px; padding: 8px; border-left: 3px solid #eee; }
+    .transcript-segment strong { color: #555; }
+    .footer { margin-top: 40px; border-top: 1px solid #ddd; padding-top: 10px; font-size: 12px; color: #777; }
   </style>
 </head>
 <body>
   <h1>${meetingData.title || template.name}</h1>
-`
+`;
 
-  // Meeting Information
   content += `
   <div class="section">
     <h2>Meeting Information</h2>
     <p><strong>Date:</strong> ${meetingData.date}</p>
-    ${meetingData.startTime ? `<p><strong>Time:</strong> ${meetingData.startTime}${meetingData.endTime ? ` - ${meetingData.endTime}` : ''}</p>` : ''}
-    ${meetingData.location ? `<p><strong>Location:</strong> ${meetingData.location}</p>` : ''}
+    ${meetingData.startTime ? `<p><strong>Time:</strong> ${meetingData.startTime}${meetingData.endTime ? ` - ${meetingData.endTime}` : ""}</p>` : ""}
+    ${meetingData.location ? `<p><strong>Location:</strong> ${meetingData.location}</p>` : ""}
     <p><strong>Attendees:</strong></p>
     <div class="attendees">
-      ${meetingData.attendees.map(attendee => `<span class="attendee">${attendee}</span>`).join('')}
+      ${(meetingData.attendees || []).map(attendee => `<span class="attendee">${attendee}</span>`).join("")}
     </div>
   </div>
-`
+`;
 
-  // Add template-specific sections
   for (const section of template.sections) {
-    // Skip meeting-info section as we've already added it
-    if (section.id === 'meeting-info' || section.id === 'session-info') continue
-    
+    if (section.id === "meeting-info" || section.id === "session-info") continue;
     content += `
   <div class="section">
     <h2>${section.title}</h2>
-`
-    
-    // Add section-specific content
+`;
     switch (section.id) {
-      case 'previous-action-items':
+      case "previous-action-items":
         if (meetingData.previousActionItems && meetingData.previousActionItems.length > 0) {
           content += `    <div>
-      ${meetingData.previousActionItems.map(item => `<div class="action-item">${item}</div>`).join('')}
-    </div>`
+      ${meetingData.previousActionItems.map(item => `<div class="action-item">${item}</div>`).join("")}
+    </div>`;
         } else {
-          content += `    <p>No previous action items recorded.</p>`
+          content += `    <p>No previous action items recorded.</p>`;
         }
-        break
-        
-      case 'action-items':
+        break;
+      case "action-items":
         if (actionItems.length > 0) {
           content += `    <div>
-      ${actionItems.map(item => `<div class="action-item">${item}</div>`).join('')}
-    </div>`
+      ${actionItems.map(item => `<div class="action-item">${item}</div>`).join("")}
+    </div>`;
         } else {
-          content += `    <p>No action items identified.</p>`
+          content += `    <p>No action items identified.</p>`;
         }
-        break
-        
-      case 'discussion':
-      case 'key-concepts':
+        break;
+      case "discussion":
+      case "key-concepts":
+      case "summary": // Added summary section to use key points
         if (keyPoints.length > 0) {
           content += `    <div>
-      ${keyPoints.map(point => `<p>${point}</p>`).join('')}
-    </div>`
+      ${keyPoints.map(point => `<div class="key-point">${point}</div>`).join("")}
+    </div>`;
         } else {
-          content += `    <p>No key points identified.</p>`
+          content += `    <p>No key points or summary generated.</p>`;
         }
-        break
-        
-      case 'team-updates':
-      case 'completed-yesterday':
-      case 'planned-today':
-        // For stand-up meetings, organize by speaker
-        const speakerUpdates = new Map<string, string[]>()
-        
-        for (const segment of transcript.segments) {
-          const speaker = transcript.speakers.find(s => s.id === segment.speakerId)
-          if (speaker) {
-            if (!speakerUpdates.has(speaker.name)) {
-              speakerUpdates.set(speaker.name, [])
-            }
-            speakerUpdates.get(speaker.name)?.push(segment.text)
+        break;
+      case "team-updates":
+      case "completed-yesterday":
+      case "planned-today":
+      case "blockers":
+        // Group segments by speaker for these sections
+        const speakerUpdates = new Map<string, string[]>();
+        segments.forEach(seg => {
+          if (!speakerUpdates.has(seg.speaker)) {
+            speakerUpdates.set(seg.speaker, []);
           }
-        }
-        
+          speakerUpdates.get(seg.speaker)?.push(seg.text);
+        });
         if (speakerUpdates.size > 0) {
-          content += `    <div>`
-          for (const [speaker, updates] of speakerUpdates.entries()) {
-            content += `      <p><strong>${speaker}:</strong></p>
-      <p>${updates.join(' ')}</p>`
-          }
-          content += `    </div>`
+          content += `    <div>`;
+          speakerUpdates.forEach((updates, speaker) => {
+            content += `      <p><strong>${speaker}:</strong> ${updates.join(" ")}</p>`;
+          });
+          content += `    </div>`;
         } else {
-          content += `    <p>No updates recorded.</p>`
+          content += `    <p>No updates recorded.</p>`;
         }
-        break
-        
+        break;
       default:
-        // For other sections, add placeholder text
-        content += `    <p>[Content for ${section.title} would be generated here based on the transcript and meeting data]</p>`
+        content += `    <p>[Content for ${section.title} based on transcript segments]</p>`;
+        // Display relevant segments for other sections
+        if (segments.length > 0) {
+            content += segments.slice(0,3).map(seg => `<p class="transcript-segment"><strong>${seg.speaker}:</strong> ${seg.text.substring(0,150)}...</p>`).join("");
+        } else {
+            content += `<p>No transcript data available for this section.</p>`;
+        }
     }
-    
     content += `
   </div>
-`
+`;
   }
-  
-  // Add transcript summary
+
   content += `
   <div class="section">
-    <h2>Transcript Summary</h2>
+    <h2>Full Transcript</h2>
     <div>
-      ${transcript.segments.map(segment => {
-        const speaker = transcript.speakers.find(s => s.id === segment.speakerId)
-        return `<p><strong>${speaker ? speaker.name : 'Unknown'}:</strong> ${segment.text}</p>`
-      }).join('')}
+      ${segments.map(seg => `<div class="transcript-segment"><strong>${seg.speaker} (${seg.start_time.toFixed(1)}s-${seg.end_time.toFixed(1)}s):</strong> ${seg.text}</div>`).join("")}
     </div>
   </div>
   
   <div class="footer">
-    <p>Generated on ${new Date().toLocaleString()} | Meeting Minutes Generator</p>
+    <p>Generated on ${new Date().toLocaleString()} | AI Enhanced Meeting Minutes Generator</p>
   </div>
 </body>
-</html>`
+</html>`;
 
   return {
     title: meetingData.title || template.name,
     content,
-    format: format === 'pdf' ? 'pdf' : 'html'
-  }
+    format: format === "pdf" ? "pdf" : "html",
+  };
 }
 
-// Generate plain text meeting minutes
 function generateTextMinutes(
   template: MeetingTemplate,
-  transcript: ProcessedTranscript,
+  segments: TranscriptSegment[],
   meetingData: MeetingData,
   keyPoints: string[],
   actionItems: string[],
-  format: 'txt' | 'docx' = 'txt'
+  format: "txt" | "docx" = "txt"
 ): GeneratedDocument {
-  let content = `${meetingData.title || template.name}\n`
-  content += `${'='.repeat((meetingData.title || template.name).length)}\n\n`
-  
-  // Meeting Information
-  content += `MEETING INFORMATION\n`
-  content += `-----------------\n`
-  content += `Date: ${meetingData.date}\n`
+  let content = `${meetingData.title || template.name}\n`;
+  content += `${"=".repeat((meetingData.title || template.name).length)}\n\n`;
+
+  content += `MEETING INFORMATION\n-----------------\n`;
+  content += `Date: ${meetingData.date}\n`;
   if (meetingData.startTime) {
-    content += `Time: ${meetingData.startTime}${meetingData.endTime ? ` - ${meetingData.endTime}` : ''}\n`
+    content += `Time: ${meetingData.startTime}${meetingData.endTime ? ` - ${meetingData.endTime}` : ""}\n`;
   }
   if (meetingData.location) {
-    content += `Location: ${meetingData.location}\n`
+    content += `Location: ${meetingData.location}\n`;
   }
-  content += `Attendees: ${meetingData.attendees.join(', ')}\n\n`
-  
-  // Add template-specific sections
+  content += `Attendees: ${(meetingData.attendees || []).join(", ")}\n\n`;
+
   for (const section of template.sections) {
-    // Skip meeting-info section as we've already added it
-    if (section.id === 'meeting-info' || section.id === 'session-info') continue
-    
-    content += `${section.title.toUpperCase()}\n`
-    content += `${'-'.repeat(section.title.length)}\n`
-    
-    // Add section-specific content
+    if (section.id === "meeting-info" || section.id === "session-info") continue;
+    content += `${section.title.toUpperCase()}\n${"-".repeat(section.title.length)}\n`;
     switch (section.id) {
-      case 'previous-action-items':
+      case "previous-action-items":
         if (meetingData.previousActionItems && meetingData.previousActionItems.length > 0) {
-          meetingData.previousActionItems.forEach(item => {
-            content += `- ${item}\n`
-          })
+          meetingData.previousActionItems.forEach(item => { content += `- ${item}\n`; });
         } else {
-          content += `No previous action items recorded.\n`
+          content += `No previous action items recorded.\n`;
         }
-        break
-        
-      case 'action-items':
+        break;
+      case "action-items":
         if (actionItems.length > 0) {
-          actionItems.forEach(item => {
-            content += `- ${item}\n`
-          })
+          actionItems.forEach(item => { content += `- ${item}\n`; });
         } else {
-          content += `No action items identified.\n`
+          content += `No action items identified.\n`;
         }
-        break
-        
-      case 'discussion':
-      case 'key-concepts':
+        break;
+      case "discussion":
+      case "key-concepts":
+      case "summary":
         if (keyPoints.length > 0) {
-          keyPoints.forEach(point => {
-            content += `${point}\n\n`
-          })
+          keyPoints.forEach(point => { content += `${point}\n\n`; });
         } else {
-          content += `No key points identified.\n`
+          content += `No key points or summary generated.\n`;
         }
-        break
-        
-      case 'team-updates':
-      case 'completed-yesterday':
-      case 'planned-today':
-        // For stand-up meetings, organize by speaker
-        const speakerUpdates = new Map<string, string[]>()
-        
-        for (const segment of transcript.segments) {
-          const speaker = transcript.speakers.find(s => s.id === segment.speakerId)
-          if (speaker) {
-            if (!speakerUpdates.has(speaker.name)) {
-              speakerUpdates.set(speaker.name, [])
-            }
-            speakerUpdates.get(speaker.name)?.push(segment.text)
+        break;
+      case "team-updates":
+      case "completed-yesterday":
+      case "planned-today":
+      case "blockers":
+        const speakerUpdates = new Map<string, string[]>();
+        segments.forEach(seg => {
+          if (!speakerUpdates.has(seg.speaker)) {
+            speakerUpdates.set(seg.speaker, []);
           }
-        }
-        
+          speakerUpdates.get(seg.speaker)?.push(seg.text);
+        });
         if (speakerUpdates.size > 0) {
-          for (const [speaker, updates] of speakerUpdates.entries()) {
-            content += `${speaker}:\n${updates.join(' ')}\n\n`
-          }
+          speakerUpdates.forEach((updates, speaker) => {
+            content += `${speaker}:\n${updates.join(" ")}\n\n`;
+          });
         } else {
-          content += `No updates recorded.\n`
+          content += `No updates recorded.\n`;
         }
-        break
-        
+        break;
       default:
-        // For other sections, add placeholder text
-        content += `[Content for ${section.title} would be generated here based on the transcript and meeting data]\n`
+        content += `[Content for ${section.title} based on transcript segments]\n`;
+        if (segments.length > 0) {
+             content += segments.slice(0,3).map(seg => `${seg.speaker}: ${seg.text.substring(0,150)}...\n`).join("\n");
+        } else {
+            content += `No transcript data available for this section.\n`;
+        }
     }
-    
-    content += `\n`
+    content += `\n`;
   }
-  
-  // Add transcript summary
-  content += `TRANSCRIPT SUMMARY\n`
-  content += `-----------------\n`
-  transcript.segments.forEach(segment => {
-    const speaker = transcript.speakers.find(s => s.id === segment.speakerId)
-    content += `${speaker ? speaker.name : 'Unknown'}: ${segment.text}\n\n`
-  })
-  
-  content += `\nGenerated on ${new Date().toLocaleString()} | Meeting Minutes Generator`
-  
+
+  content += `FULL TRANSCRIPT\n---------------\n`;
+  segments.forEach(seg => {
+    content += `${seg.speaker} (${seg.start_time.toFixed(1)}s-${seg.end_time.toFixed(1)}s): ${seg.text}\n\n`;
+  });
+
+  content += `\nGenerated on ${new Date().toLocaleString()} | AI Enhanced Meeting Minutes Generator`;
+
   return {
     title: meetingData.title || template.name,
     content,
-    format: format === 'docx' ? 'docx' : 'txt'
-  }
+    format: format === "docx" ? "docx" : "txt",
+  };
 }
 
-// Function to generate a document based on template, transcript, and format
-export async function generateDocument(
+// This function is called by the download API route.
+// It needs to fetch the necessary data (templateId, segments, meetingData, format) associated with a documentId.
+// For now, it assumes these are passed directly, which is not how a real download API would work.
+// This will need to be refactored when the download API is properly implemented with data persistence.
+export async function generateDocumentContent(
   templateId: string,
-  transcript: ProcessedTranscript,
+  processedSegments: TranscriptSegment[],
   meetingData: MeetingData,
-  format: 'pdf' | 'docx' | 'html' | 'txt'
-): Promise<Blob> {
-  const document = generateMeetingMinutes(templateId, transcript, meetingData, format)
-  
+  format: "pdf" | "docx" | "html" | "txt"
+): Promise<string> { // Returns string content for now
+  const document = generateMeetingMinutes(templateId, processedSegments, meetingData, format);
   if (!document) {
-    throw new Error('Failed to generate document')
+    throw new Error("Failed to generate document content");
   }
-  
-  // In a real application, this would convert the content to the appropriate format
-  // For now, we'll return the content as a Blob with the appropriate MIME type
-  let mimeType = 'text/plain'
-  
-  switch (format) {
-    case 'pdf':
-      mimeType = 'application/pdf'
-      break
-    case 'docx':
-      mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-      break
-    case 'html':
-      mimeType = 'text/html'
-      break
-    case 'txt':
-    default:
-      mimeType = 'text/plain'
-  }
-  
-  return new Blob([document.content], { type: mimeType })
+  return document.content;
 }
+
+// The `generateDocument` function that returns a Blob is likely used on the client-side for direct download
+// or needs to be adapted for server-side file generation if the download API serves actual files.
+export async function generateDocumentBlob(
+  templateId: string,
+  processedSegments: TranscriptSegment[],
+  meetingData: MeetingData,
+  format: "pdf" | "docx" | "html" | "txt"
+): Promise<Blob> {
+  const documentContent = await generateDocumentContent(templateId, processedSegments, meetingData, format);
+  
+  let mimeType = "text/plain";
+  switch (format) {
+    case "pdf":
+      mimeType = "application/pdf";
+      // Actual PDF generation from HTML/text would happen here (e.g., using puppeteer or a library)
+      // For now, if HTML was generated, we might return that as text/html for PDF placeholder
+      if (generateMeetingMinutes(templateId, processedSegments, meetingData, "html")?.format === "html" && format === "pdf") {
+        // This is still a placeholder. Real PDF generation is needed.
+        // console.warn("PDF generation is a placeholder; returning HTML content as Blob.");
+      }
+      break;
+    case "docx":
+      mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      // Actual DOCX generation from text/HTML would happen here (e.g., using mammoth.js or docx library)
+      break;
+    case "html":
+      mimeType = "text/html";
+      break;
+    case "txt":
+    default:
+      mimeType = "text/plain";
+  }
+  
+  return new Blob([documentContent], { type: mimeType });
+}
+
