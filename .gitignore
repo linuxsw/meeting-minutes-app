@@ -31,3 +31,11 @@ dist
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+
+# Python virtual environment
+app_env/
+
+# Generated documentation PDFs
+generated_docs/
+
