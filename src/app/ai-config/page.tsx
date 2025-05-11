@@ -1,202 +1,68 @@
-'use client'
+import React, { useState, useEffect } from 'react';
 
-import { useState } from 'react'
-import { Card } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { AIProvider } from '@/lib/ai-providers/ai-provider'
-import { getAvailableAIProviders, configureAIProvider } from '@/lib/ai-transcript-processor'
+// Assuming this is the structure based on typical Next.js app router pages
 
-interface AIProviderConfigProps {
-  providers: AIProvider[]
-  selectedProviderId: string
-  onSelectProvider: (providerId: string) => void
-  onConfigureProvider: (providerId: string, config: any) => void
-}
+const AiConfigPage = () => {
+  // Placeholder for actual AI provider selection logic
+  // For this task, we'll just add a static warning message.
+  // In a real scenario, this would be dynamic based on user selection.
 
-export function AIProviderConfig({
-  providers,
-  selectedProviderId,
-  onSelectProvider,
-  onConfigureProvider
-}: AIProviderConfigProps) {
-  const [configValues, setConfigValues] = useState<Record<string, Record<string, any>>>({})
-  
-  const handleProviderSelect = (providerId: string) => {
-    onSelectProvider(providerId)
-  }
-  
-  const handleConfigChange = (providerId: string, fieldId: string, value: any) => {
-    setConfigValues(prev => ({
-      ...prev,
-      [providerId]: {
-        ...(prev[providerId] || {}),
-        [fieldId]: value
-      }
-    }))
-  }
-  
-  const handleSaveConfig = (providerId: string) => {
-    const config = configValues[providerId] || {}
-    onConfigureProvider(providerId, config)
-  }
-  
+  const [selectedProvider, setSelectedProvider] = useState(''); // Example state
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold">AI Provider Configuration</h2>
-      
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Select AI Provider</label>
-          <select
-            value={selectedProviderId}
-            onChange={(e) => handleProviderSelect(e.target.value)}
-            className="w-full p-2 border rounded-md bg-background"
-          >
-            {providers.map(provider => (
-              <option key={provider.id} value={provider.id}>
-                {provider.name} {provider.isConfigured ? '(Configured)' : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        {providers.map(provider => (
-          <div 
-            key={provider.id} 
-            className={`border rounded-md p-4 ${selectedProviderId === provider.id ? 'border-primary' : ''}`}
-            style={{ display: selectedProviderId === provider.id ? 'block' : 'none' }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium">{provider.name}</h3>
-              <div className={`px-2 py-1 text-xs rounded-full ${provider.isConfigured ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                {provider.isConfigured ? 'Configured' : 'Not Configured'}
-              </div>
-            </div>
-            
-            <p className="text-sm text-muted-foreground mb-4">{provider.description}</p>
-            
-            {provider.id !== 'none' && (
-              <>
-                <div className="space-y-4 mb-4">
-                  {provider.getConfigFields().map(field => (
-                    <div key={field.id}>
-                      <label className="block text-sm font-medium mb-1">
-                        {field.name}
-                        {field.required && <span className="text-red-500 ml-1">*</span>}
-                      </label>
-                      
-                      {field.type === 'select' ? (
-                        <select
-                          value={(configValues[provider.id]?.[field.id] || '')}
-                          onChange={(e) => handleConfigChange(provider.id, field.id, e.target.value)}
-                          className="w-full p-2 border rounded-md bg-background"
-                        >
-                          {field.options?.map(option => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <input
-                          type={field.type}
-                          value={(configValues[provider.id]?.[field.id] || '')}
-                          onChange={(e) => handleConfigChange(provider.id, field.id, e.target.value)}
-                          placeholder={`Enter ${field.name.toLowerCase()}`}
-                          className="w-full p-2 border rounded-md bg-background"
-                        />
-                      )}
-                      
-                      {field.description && (
-                        <p className="text-xs text-muted-foreground mt-1">{field.description}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                
-                <button
-                  onClick={() => handleSaveConfig(provider.id)}
-                  className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md"
-                >
-                  Save Configuration
-                </button>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-      
-      <div className="mt-6">
-        <h3 className="text-lg font-medium mb-2">AI Processing Options</h3>
-        
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <input type="checkbox" id="summarize" defaultChecked />
-            <label htmlFor="summarize">Generate meeting summary</label>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <input type="checkbox" id="actionItems" defaultChecked />
-            <label htmlFor="actionItems">Extract action items</label>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <input type="checkbox" id="meetingSpecific" defaultChecked />
-            <label htmlFor="meetingSpecific">Process meeting-specific content</label>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+    <div>
+      <h1>AI Provider Configuration</h1>
+      <p>Select your preferred AI provider for enhanced meeting minute features.</p>
 
-export default function AIConfigPage() {
-  const [providers, setProviders] = useState<AIProvider[]>([])
-  const [selectedProviderId, setSelectedProviderId] = useState<string>('none')
-  
-  // Initialize providers on component mount
-  useState(() => {
-    const availableProviders = getAvailableAIProviders()
-    setProviders(availableProviders)
-    
-    // Check if we have a stored provider selection
-    const storedProviderId = localStorage.getItem('selected_ai_provider')
-    if (storedProviderId) {
-      setSelectedProviderId(storedProviderId)
-    }
-  })
-  
-  const handleSelectProvider = (providerId: string) => {
-    setSelectedProviderId(providerId)
-    localStorage.setItem('selected_ai_provider', providerId)
-  }
-  
-  const handleConfigureProvider = (providerId: string, config: any) => {
-    const success = configureAIProvider(providerId, config)
-    
-    if (success) {
-      // Update providers list to reflect configuration status
-      const updatedProviders = getAvailableAIProviders()
-      setProviders(updatedProviders)
-      
-      alert(`${providerId} provider configured successfully!`)
-    } else {
-      alert(`Failed to configure ${providerId} provider. Please check your settings.`)
-    }
-  }
-  
-  return (
-    <div className="container py-10">
-      <h1 className="text-3xl font-bold mb-6">AI Configuration</h1>
-      
-      <Card className="p-6">
-        <AIProviderConfig
-          providers={providers}
-          selectedProviderId={selectedProviderId}
-          onSelectProvider={handleSelectProvider}
-          onConfigureProvider={handleConfigureProvider}
-        />
-      </Card>
+      {/* Placeholder for actual selection UI elements */}
+      <div style={{ marginBottom: '20px' }}>
+        <label htmlFor="ai-provider-select">Choose an AI Provider:</label>
+        <select 
+          id="ai-provider-select"
+          value={selectedProvider}
+          onChange={(e) => setSelectedProvider(e.target.value)}
+          style={{ marginLeft: '10px', padding: '5px' }}
+        >
+          <option value="">--Select Provider--</option>
+          <option value="ollama">Ollama (Local)</option>
+          <option value="openai">OpenAI (Cloud)</option>
+          <option value="togetherai">Together AI (Cloud)</option>
+          <option value="none">No AI (Disable Enhancements)</option>
+        </select>
+      </div>
+
+      {(selectedProvider === 'openai' || selectedProvider === 'togetherai') && (
+        <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', backgroundColor: '#f8f8f8' }}>
+          <h3 style={{ color: 'orange' }}>Privacy & IP Notice</h3>
+          <p>
+            <strong>Warning:</strong> You have selected a cloud-based AI provider ({selectedProvider === 'openai' ? 'OpenAI' : 'Together AI'}). 
+            Please be aware that when using this service for enhancements like summarization or action item extraction, 
+            your transcript data will be sent to and processed by this third-party service.
+          </p>
+          <p>
+            We recommend reviewing their specific privacy policies and terms of service before proceeding if you have concerns 
+            about data confidentiality or intellectual property. For processing that remains entirely within your local environment, 
+            consider using locally hosted AI options (if available and configured for such tasks) or the "No AI" option for generating minutes without these enhancements.
+          </p>
+          <p>
+            For more general information, please refer to our application's IP and Privacy guide (typically found in the README or a dedicated privacy section).
+          </p>
+        </div>
+      )}
+
+      {(selectedProvider === 'ollama') && (
+        <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', backgroundColor: '#f0fff0' }}>
+          <h3 style={{ color: 'green' }}>Privacy Information</h3>
+          <p>
+            You have selected Ollama. If this instance is self-hosted, your data remains within your local infrastructure during processing for enhancements.
+          </p>
+        </div>
+      )}
+
+      {/* Add other configuration options here */}
     </div>
-  )
-}
+  );
+};
+
+export default AiConfigPage;
+

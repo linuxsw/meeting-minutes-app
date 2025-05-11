@@ -204,6 +204,19 @@ Navigate to the `/ai-config` page in the application to:
 - Select your preferred AI provider for features like summarization (OpenAI, Together AI, Ollama, or No AI).
 - Enter API keys if required (these are stored in browser local storage for client-side use or should be configured as environment variables for backend use).
 
+## Intellectual Property and Data Privacy
+
+We take your data privacy and intellectual property seriously. The core audio processing (transcription, speaker identification) is performed **locally** on the server where this application is hosted, without sending your audio to third-party services.
+
+For optional AI enhancements (like summarization) using cloud-based providers (OpenAI, Together AI), only the **text-based transcript** is sent. You have the option to use locally hosted AI (Ollama) or no AI for these enhancements to keep all data within your environment.
+
+Please review the following documents for detailed information:
+
+-   **[Intellectual Property and Data Privacy Considerations](./IP_AND_PRIVACY.md)**: Explains how data is handled with different AI services and IP implications.
+-   **[Privacy Policy](./PRIVACY.md)**: General privacy policy for the application.
+
+It is crucial to understand these policies, especially if you choose to use cloud-based AI providers for enhanced features.
+
 ## License
 
 This project is licensed under the MIT License - see the `LICENSE` file for details (if one exists, otherwise assume MIT or check with the author).
