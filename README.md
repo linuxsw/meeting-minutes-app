@@ -38,18 +38,22 @@ A web application for generating meeting minutes from Microsoft Teams recordings
 
 ## Getting Started
 
+This project now includes a comprehensive setup script (`setup_app.sh`) to simplify the installation process on Linux (Ubuntu/Debian) and macOS.
+
 ### Prerequisites
 
-- **Node.js**: Version 20.x or higher.
-- **npm** (comes with Node.js) or **pnpm**.
-- **Python**: Version 3.9 or higher (for audio processing backend).
-- **pip** (Python package installer).
-- **Docker Desktop**: Required if you plan to use Ollama for local AI processing, or for a containerized setup.
-- **ffmpeg**: A command-line tool for audio/video operations. SpeechBrain/torchaudio relies on it.
-    - On macOS: `brew install ffmpeg`
-    - On Linux: `sudo apt update && sudo apt install ffmpeg`
+Before running the setup script, ensure you have the following basic tools installed:
 
-### General Installation (All Platforms)
+- **For Linux (Ubuntu/Debian)**:
+  - `git`, `curl` (usually pre-installed or easily installable with `sudo apt-get install git curl`).
+- **For macOS**:
+  - **Homebrew**: If not installed, visit [https://brew.sh/](https://brew.sh/).
+  - `git`, `curl` (usually pre-installed or installable with `brew install git curl`).
+- **Node.js**: While the script can install some Node.js dependencies, having Node.js (v20.x or higher) and npm/pnpm pre-installed is recommended for managing the frontend part of the application if you intend to do development.
+
+The `setup_app.sh` script will attempt to install Python 3, pip, Python virtual environment tools, ffmpeg, and other necessary system dependencies for WeasyPrint and Playwright.
+
+### Using the Setup Script (`setup_app.sh`)
 
 1.  **Clone the repository**:
     ```bash
@@ -57,32 +61,98 @@ A web application for generating meeting minutes from Microsoft Teams recordings
     cd meeting-minutes-app
     ```
 
-2.  **Install Frontend Dependencies**:
+2.  **Make the script executable**:
+    ```bash
+    chmod +x setup_app.sh
+    ```
+
+3.  **Run the script**:
+
+    *   **Interactive Mode (Recommended for first-time setup)**:
+        ```bash
+        ./setup_app.sh
+        ```
+        The script will guide you through:
+        *   Operating System detection.
+        *   Installation of base system dependencies (Python, pip, ffmpeg, etc.).
+        *   **Python Environment Setup**: You will be prompted to choose your preferred Python environment management:
+            *   **venv (Recommended)**: Uses Python's built-in `venv` module to create an isolated environment (default: `app_env_venv/`).
+            *   **uv**: Uses Astral's `uv` tool for faster environment creation and package installation. `uv` will be installed if not found (default: `app_env_uv/`).
+            *   **system**: Installs Python packages globally. **NOT RECOMMENDED** due to potential conflicts with other system Python packages.
+        *   Installation of Python packages (WeasyPrint, Markdown, Pytest, python-pptx) into the chosen environment.
+        *   Installation of Node.js dependencies (for the Next.js app) and Playwright (for E2E tests).
+        *   An option to generate PDF documentation from Markdown files (e.g., README, IP_AND_PRIVACY.md).
+        *   An option to run automated tests (Pytest for Python scripts, Playwright for E2E web app tests).
+
+    *   **Non-Interactive Mode (Using Flags)**:
+        You can also run the script with flags for automated setups:
+        ```bash
+        ./setup_app.sh [options]
+        ```
+        Available options:
+        *   `--install-deps`: Installs all system and project dependencies (Python, Node.js, Playwright).
+        *   `--python-env [venv|uv|system]`: Specify the Python environment type. If not provided with `--install-deps`, defaults to `venv`.
+        *   `--generate-docs`: Generates PDF versions of key documentation files into the `generated_docs/` directory.
+        *   `--run-tests`: Runs the automated test suite (Pytest and Playwright).
+
+        **Examples**:
+        *   Install all dependencies using `uv` for Python, generate docs, and run tests:
+            ```bash
+            ./setup_app.sh --install-deps --python-env uv --generate-docs --run-tests
+            ```
+        *   Only install dependencies using the default `venv` for Python:
+            ```bash
+            ./setup_app.sh --install-deps
+            ```
+        *   Only generate PDF documents (assumes Python environment is already set up or will use system Python if no venv found):
+            ```bash
+            ./setup_app.sh --generate-docs --python-env system # Or your chosen env type
+            ```
+
+### Manual Setup (Alternative to `setup_app.sh`)
+
+If you prefer a manual setup or need more control:
+
+1.  **Clone the repository** (as above).
+
+2.  **Install System Dependencies Manually**:
+    *   **Node.js**: Version 20.x or higher.
+    *   **npm** (comes with Node.js) or **pnpm**.
+    *   **Python**: Version 3.9 or higher.
+    *   **pip** (Python package installer).
+    *   **ffmpeg**: `sudo apt install ffmpeg` (Linux) or `brew install ffmpeg` (macOS).
+    *   **WeasyPrint System Dependencies**: See [WeasyPrint Documentation](https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation) for your OS (e.g., pango, cairo, libffi, gdk-pixbuf).
+    *   **Playwright System Dependencies**: For Linux, run `npx playwright install-deps`. For macOS, usually handled by `npx playwright install --with-deps`.
+
+3.  **Install Frontend Dependencies**:
     ```bash
     npm install --legacy-peer-deps
     # or
     # pnpm install --legacy-peer-deps 
     ```
-    *Note: `--legacy-peer-deps` is used to resolve potential peer dependency conflicts often found in complex React projects.*
 
-3.  **Setup Python Backend for Audio Processing**:
-    The audio processing service uses Python and SpeechBrain. It is recommended to set this up in a virtual environment.
+4.  **Setup Python Environment (Manual - Example with venv)**:
     ```bash
-    cd src/python_services # Navigate to the python services directory
-    python3 -m venv venv   # Create a virtual environment
-    source venv/bin/activate # Activate the virtual environment (on macOS/Linux)
-    # On Windows: venv\Scripts\activate
+    # Create a virtual environment (e.g., in the project root or src/python_services)
+    python3 -m venv app_env_manual
+    source app_env_manual/bin/activate # (macOS/Linux)
+    # On Windows: app_env_manual\Scripts\activate
     
     # Install Python dependencies
-    # PyTorch installation might vary based on your OS and if you have a CUDA-enabled GPU.
-    # For CPU-only (common for local development, especially on Macs without NVIDIA GPUs):
-    pip3 install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
-    pip3 install speechbrain
-    # If you encounter issues, ensure you have the necessary build tools for your OS.
+    pip3 install --upgrade pip wheel
+    pip3 install WeasyPrint markdown pytest python-pptx
+    # For audio processing (if not handled by a separate service in your setup):
+    # pip3 install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+    # pip3 install speechbrain
     ```
 
-4.  **Environment Variables (Optional - for AI Providers)**:
-    If you plan to use OpenAI or Together AI for future AI features (like summarization, which is not fully integrated with the audio processor yet but the framework is there), create a `.env.local` file in the root of the `meeting-minutes-app` project:
+5.  **Install Playwright Browsers**:
+    ```bash
+    npx playwright install --with-deps
+    ```
+
+6.  **Environment Variables (Optional - for AI Providers)**:
+    If you plan to use OpenAI or Together AI, create a `.env.local` file in the root of the `meeting-minutes-app` project:
     ```env
     NEXT_PUBLIC_OPENAI_API_KEY=your_openai_api_key
     NEXT_PUBLIC_TOGETHER_AI_API_KEY=your_together_ai_api_key
@@ -91,7 +161,14 @@ A web application for generating meeting minutes from Microsoft Teams recordings
 
 ### Running the Application (Development)
 
-1.  **Start the Next.js Frontend Development Server**:
+1.  **Activate Python Environment** (if you used venv/uv and it's not active):
+    ```bash
+    # Example for venv created by setup_app.sh
+    # source app_env_venv/bin/activate 
+    # Or for uv
+    # source app_env_uv/bin/activate
+    ```
+2.  **Start the Next.js Frontend Development Server**:
     From the root `meeting-minutes-app` directory:
     ```bash
     npm run dev
@@ -100,62 +177,36 @@ A web application for generating meeting minutes from Microsoft Teams recordings
     ```
     This will typically start the application on `http://localhost:3000`.
 
-2.  The Python audio processing script (`src/python_services/audio_processor.py`) is called directly by the Next.js backend API. Ensure your Python virtual environment (with SpeechBrain, PyTorch, etc.) is set up correctly as the script will use the system's `python3` or the one in the active path.
-
 ### macOS Specific Setup (M1/M2/M3/M4 Apple Silicon)
 
-Setting up the Python environment for audio processing (SpeechBrain, PyTorch) on Apple Silicon (ARM64) requires careful attention to ensure compatibility.
+The `setup_app.sh` script handles macOS specifics. If setting up manually:
 
-1.  **Homebrew**: Ensure Homebrew is installed. If not, visit [https://brew.sh/](https://brew.sh/).
-
-2.  **Python**: It's recommended to use Python installed via Homebrew or a version manager like `pyenv` to ensure you have an ARM64 version of Python.
+1.  **Homebrew**: Ensure Homebrew is installed.
+2.  **Python**: Use Python installed via Homebrew (`brew install python`).
+3.  **ffmpeg**: `brew install ffmpeg`.
+4.  **WeasyPrint Dependencies**: `brew install pango cairo libffi gdk-pixbuf`.
+5.  **Python Virtual Environment and Dependencies (Apple Silicon)**:
+    When installing PyTorch manually, ensure you get the correct version for macOS ARM64.
     ```bash
-    brew install python
-    ```
-
-3.  **ffmpeg**: Install via Homebrew:
-    ```bash
-    brew install ffmpeg
-    ```
-
-4.  **Python Virtual Environment and Dependencies (Apple Silicon)**:
-    Navigate to `src/python_services` and create/activate your virtual environment as described in the general setup.
-    When installing PyTorch, ensure you are getting the correct version for macOS ARM64 (CPU is typical for PyTorch on Mac unless specific Metal Performance Shaders (MPS) builds are targeted and supported by all libraries).
-    ```bash
-    # Inside your activated virtual environment (e.g., ./src/python_services/venv)
+    # Inside your activated virtual environment
     pip3 install torch torchaudio --index-url https://download.pytorch.org/whl/cpu 
-    # Or, for nightly builds that might have better MPS support (more experimental):
-    # pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cpu
-    
     pip3 install speechbrain
     ```
-    *   **Troubleshooting PyTorch on Apple Silicon**: If you encounter issues, refer to the official PyTorch installation guide ([https://pytorch.org/get-started/locally/](https://pytorch.org/get-started/locally/)) and select the appropriate options for macOS, Pip, Python, and CPU.
-    *   SpeechBrain should generally work once PyTorch and Torchaudio are correctly installed.
 
 ### Docker Setup (Recommended for Ollama and Consistent Environment)
 
-This project includes a `docker-compose.yml` and `Dockerfile` to run the application and an Ollama instance in containers. This is particularly useful for macOS users wanting to use Ollama or for ensuring a consistent environment.
+This project includes a `docker-compose.yml` and `Dockerfile`.
 
-1.  **Prerequisites**: Docker Desktop installed and running on your Mac (M-series compatible version).
-
+1.  **Prerequisites**: Docker Desktop installed and running.
 2.  **Build and Run with Docker Compose**:
-    From the root of the `meeting-minutes-app` directory:
     ```bash
     docker-compose up --build
     ```
-    This command will:
-    *   Build the Next.js application image as defined in `Dockerfile`.
-    *   Pull the Ollama image (if not already present) and configure it to run a model (e.g., Llama 2, Mistral - you might need to adjust `docker-compose.yml` or run Ollama commands post-startup to pull specific models if not pre-configured).
-    *   Start both services. The Next.js app will typically be available at `http://localhost:3000` (or as configured in `docker-compose.yml`).
-    *   The Python audio processing will run within the Next.js application container, which includes Python and the necessary dependencies.
+    The Next.js app will typically be available at `http://localhost:3000`. The Python audio processing runs within the Next.js application container.
 
 3.  **Using Ollama with Docker Setup**:
-    *   Once the Docker containers are running, Ollama will be accessible from the Next.js application container at `http://ollama:11434` (as per typical Docker Compose networking).
-    *   You may need to pull models into Ollama after it starts. You can do this by exec-ing into the Ollama container or using Ollama's API:
-        ```bash
-        docker-compose exec ollama ollama pull mistral # Example: pulls the mistral model
-        ```
-    *   The application's AI configuration page (`/ai-config`) should be set to use the Ollama provider with the default URL (`http://localhost:11434` if accessing from your host browser to Ollama directly, or the service name if Next.js backend calls Ollama within Docker network).
+    Ollama will be accessible from the Next.js app container at `http://ollama:11434`.
+    Pull models: `docker-compose exec ollama ollama pull mistral`.
 
 4.  **Stopping Docker Compose**:
     ```bash
@@ -166,58 +217,46 @@ This project includes a `docker-compose.yml` and `Dockerfile` to run the applica
 
 1.  Navigate to the application in your browser (e.g., `http://localhost:3000`).
 2.  **For Audio Processing**: Go to the `/review-transcript` page.
-    *   Upload an audio or video file.
-    *   The system will process it (language detection, transcription, speaker diarization).
-    *   Review the transcript and assign names to speakers using the "Manage Speaker Names" section.
-3.  **For Meeting Minutes Generation (using processed transcript)**:
-    *   (Workflow to be fully connected) Select a meeting template on the main page.
-    *   Provide the processed transcript data (from the review page or other sources).
-    *   Fill in other meeting details (title, date, attendees - some can be auto-filled).
-    *   Choose an output format (PDF, DOCX, HTML, TXT).
-    *   Generate and download the meeting minutes.
+3.  **For Meeting Minutes Generation**: (Workflow to be fully connected) Select a template, provide transcript data, fill details, choose format, and generate.
 
 ## Testing
 
-The application includes a test mode that allows you to try some functionality without uploading actual files:
+Automated tests are included. You can run them using the `setup_app.sh` script or manually.
 
-1.  Navigate to `/test` in your browser for general app flow testing.
-2.  Navigate to `/test-transcript` for testing with pre-defined transcript data.
+-   **Run with setup script**:
+    ```bash
+    ./setup_app.sh --run-tests --python-env [venv|uv|system] # Ensure dependencies are installed first or use --install-deps
+    ```
+-   **Run Manually**:
+    1.  Ensure all dependencies (Python, Node.js, Playwright) are installed and Python environment is active.
+    2.  **Python Tests (Pytest)**:
+        ```bash
+        # From the project root, assuming pytest is in your PATH (e.g., from activated venv)
+        pytest tests/python
+        ```
+    3.  **E2E Tests (Playwright)**:
+        ```bash
+        # Start the Next.js dev server first
+        npm run dev &
+        # Wait for server to be ready, then run tests
+        npx playwright test tests/e2e
+        # Stop the dev server afterwards
+        ```
 
-## Deployment
-
-### Production Build
-
-To build the application for production:
-```bash
-npm run build
-```
-
-### Starting Production Server
-```bash
-npm start
-```
-This uses the Next.js production server.
+Refer to `TESTING_STRATEGY.md` for more details on the testing approach.
 
 ## AI Provider Configuration
 
-Navigate to the `/ai-config` page in the application to:
-- Select your preferred AI provider for features like summarization (OpenAI, Together AI, Ollama, or No AI).
-- Enter API keys if required (these are stored in browser local storage for client-side use or should be configured as environment variables for backend use).
+Navigate to the `/ai-config` page to select AI providers (OpenAI, Together AI, Ollama, No AI) and configure API keys.
 
 ## Intellectual Property and Data Privacy
 
-We take your data privacy and intellectual property seriously. The core audio processing (transcription, speaker identification) is performed **locally** on the server where this application is hosted, without sending your audio to third-party services.
+Core audio processing is performed **locally**. Optional AI enhancements (summarization) using cloud providers (OpenAI, Together AI) send **text-based transcripts**. You can use local Ollama or no AI for these features.
 
-For optional AI enhancements (like summarization) using cloud-based providers (OpenAI, Together AI), only the **text-based transcript** is sent. You have the option to use locally hosted AI (Ollama) or no AI for these enhancements to keep all data within your environment.
-
-Please review the following documents for detailed information:
-
--   **[Intellectual Property and Data Privacy Considerations](./IP_AND_PRIVACY.md)**: Explains how data is handled with different AI services and IP implications.
--   **[Privacy Policy](./PRIVACY.md)**: General privacy policy for the application.
-
-It is crucial to understand these policies, especially if you choose to use cloud-based AI providers for enhanced features.
+Review these documents:
+-   **[Intellectual Property and Data Privacy Considerations](./IP_AND_PRIVACY.md)**
+-   **[Privacy Policy](./PRIVACY.md)**
 
 ## License
 
-This project is licensed under the MIT License - see the `LICENSE` file for details (if one exists, otherwise assume MIT or check with the author).
-
+This project is licensed under the MIT License.
