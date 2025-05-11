@@ -131,20 +131,21 @@ def create_pdf(markdown_file_path, pdf_file_path):
         html_doc = HTML(string=html_content, base_url=os.path.dirname(os.path.abspath(markdown_file_path)))
         css_doc = CSS(string=css_style)
         html_doc.write_pdf(pdf_file_path, stylesheets=[css_doc])
-        # print(f"Successfully converted 	'{markdown_file_path}	' to 	'{pdf_file_path}	'") # Silenced for this execution
+        print(f"Successfully converted '{markdown_file_path}' to '{pdf_file_path}'")
 
     except FileNotFoundError:
-        print(f"Error: Markdown file not found at 	'{markdown_file_path}	'")
-        sys.exit(1) # Exit if a critical file is missing
+        print(f"Error: Markdown file not found at '{markdown_file_path}'")
+        sys.exit(1)
     except Exception as e:
         print(f"An error occurred during PDF generation: {e}")
-        sys.exit(1) # Exit on other errors
+        sys.exit(1)
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
+    if len(sys.argv) != 3:
         print("Usage: python generate_pdf_from_markdown.py <input_markdown_file> <output_pdf_file>")
         sys.exit(1)
     
     markdown_file = sys.argv[1]
     pdf_file = sys.argv[2]
     create_pdf(markdown_file, pdf_file)
+
