@@ -1,0 +1,49 @@
+{
+  "app": {
+    "title": "AI強化型議事録ジェネレーター",
+    "description": "音声、ビデオ、またはテキスト文字起こしから専門的な議事録を生成"
+  },
+  "nav": {
+    "home": "ホーム",
+    "upload": "アップロード",
+    "templates": "テンプレート",
+    "aiConfig": "AI設定",
+    "review": "文字起こしレビュー"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "success": "成功！",
+    "error": "エラー",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "next": "次へ",
+    "back": "戻る",
+    "download": "ダウンロード",
+    "processing": "処理中...",
+    "selectLanguage": "言語を選択"
+  },
+  "home": {
+    "welcome": "AI強化型議事録ジェネレーターへようこそ",
+    "description": "AIの支援により、会議の録音を専門的な議事録に変換します",
+    "getStarted": "始める",
+    "features": "機能",
+    "featuresList": {
+      "audio": "音声録音の処理",
+      "video": "ビデオファイルからのコンテンツ抽出",
+      "transcript": "既存の文字起こしの活用",
+      "templates": "複数の文書テンプレート",
+      "ai": "AI駆動の要約"
+    }
+  },
+  "upload": {
+    "title": "ファイルをアップロード",
+    "dragDrop": "ここにファイルをドラッグ＆ドロップするか、クリックして参照",
+    "formats": "対応フォーマット: MP3, MP4, WAV, VTT, SRT, TXT, DOCX",
+    "audioLanguage": "音声言語",
+    "autoDetect": "言語を自動検出",
+    "selectLanguage": "言語を選択",
+    "uploading": "アップロード中...",
+    "uploadSuccess": "ファイルが正常にアップロードされました！",
+    "uploadError": "ファイルのアップロードエラー"
+  }
+}

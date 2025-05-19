@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
+    const audioLanguage = formData.get("audioLanguage") as string || "auto";
 
     if (!file) {
       return NextResponse.json({ error: "No file uploaded." }, { status: 400 });
@@ -35,8 +36,13 @@ export async function POST(request: NextRequest) {
         }
     }
 
-    // Execute the Python script
-    const pythonProcess = spawn("python3", [pythonScriptPath, tempFilePath]);
+    // Execute the Python script with language parameter
+    const pythonProcess = spawn("python3", [
+      pythonScriptPath, 
+      tempFilePath,
+      "--language", 
+      audioLanguage
+    ]);
 
     let scriptOutput = "";
     let scriptError = "";
@@ -94,4 +100,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Internal server error.", details: error.message }, { status: 500 });
   }
 }
-

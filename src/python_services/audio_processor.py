@@ -21,7 +21,7 @@ except ImportError as e:
     print(f"Error: A required library is not installed. Please ensure SpeechBrain, PyTorch, and Torchaudio are correctly installed. Details: {e}", file=sys.stderr)
     sys.exit(1)
 
-def process_audio(audio_file_path, output_sample_rate=16000):
+def process_audio(audio_file_path, language="auto", output_sample_rate=16000):
     # 1. Load audio and resample if necessary
     try:
         waveform, sample_rate = torchaudio.load(audio_file_path)
@@ -36,31 +36,45 @@ def process_audio(audio_file_path, output_sample_rate=16000):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # 2. Language Identification (LID)
-    detected_language = "en" # Default to English if LID fails or is skipped
-    try:
-        language_id = EncoderClassifier.from_hparams(
-            source="speechbrain/lang-id-commonlanguage_ecapa", 
-            savedir="pretrained_models/lang-id-commonlanguage_ecapa"
-        )
-        language_id.to(device)
-        waveform_lid = waveform.to(device) # Ensure waveform is on the correct device
-        out_prob = language_id.classify_batch(waveform_lid)
-        scores = out_prob[0]
-        predicted_index = torch.argmax(scores)
-        detected_language = language_id.hparams.label_encoder.decode_torch(predicted_index.unsqueeze(0))[0]
-    except Exception as e:
-        # Log language detection failure but proceed with a default (e.g., English)
-        print(f"Language detection failed: {str(e)}. Defaulting to English.", file=sys.stderr)
-        # Fallback to a default language or handle error as per application requirements
+    # 2. Language Identification (LID) - Skip if language is specified
+    detected_language = language
+    if language == "auto":
+        try:
+            language_id = EncoderClassifier.from_hparams(
+                source="speechbrain/lang-id-commonlanguage_ecapa", 
+                savedir="pretrained_models/lang-id-commonlanguage_ecapa"
+            )
+            language_id.to(device)
+            waveform_lid = waveform.to(device) # Ensure waveform is on the correct device
+            out_prob = language_id.classify_batch(waveform_lid)
+            scores = out_prob[0]
+            predicted_index = torch.argmax(scores)
+            detected_language = language_id.hparams.label_encoder.decode_torch(predicted_index.unsqueeze(0))[0]
+        except Exception as e:
+            # Log language detection failure but proceed with a default (e.g., English)
+            print(f"Language detection failed: {str(e)}. Defaulting to English.", file=sys.stderr)
+            detected_language = "en"  # Default to English if auto-detection fails
+    else:
+        print(f"Using specified language: {language}", file=sys.stderr)
 
     # 3. Automatic Speech Recognition (ASR)
-    # Choose model based on detected language if possible, or use a multilingual model
-    # For simplicity, using an English model here. Adapt as needed.
-    asr_model_source = "speechbrain/asr-wav2vec2-commonvoice-en"
-    if detected_language.startswith("zh"): # Example for Chinese
-        # asr_model_source = "speechbrain/asr-wav2vec2-commonvoice-zh-CN" # Update with actual model if available
-        pass # Placeholder for other language models
+    # Choose model based on detected or specified language
+    asr_model_source = "speechbrain/asr-wav2vec2-commonvoice-en"  # Default English model
+    
+    # Map language codes to appropriate ASR models
+    language_model_map = {
+        "en": "speechbrain/asr-wav2vec2-commonvoice-en",
+        "ko": "speechbrain/asr-wav2vec2-commonvoice-en",  # Replace with Korean model when available
+        "ja": "speechbrain/asr-wav2vec2-commonvoice-en",  # Replace with Japanese model when available
+        "zh": "speechbrain/asr-wav2vec2-commonvoice-en",  # Replace with Chinese model when available
+        # Add more language-specific models as needed
+    }
+    
+    # Select the appropriate model based on detected language
+    if detected_language in language_model_map:
+        asr_model_source = language_model_map[detected_language]
+    else:
+        print(f"No specific model for {detected_language}, using default English model", file=sys.stderr)
     
     full_transcript = ""
     try:
@@ -210,6 +224,7 @@ def process_audio(audio_file_path, output_sample_rate=16000):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process audio file for transcription and speaker diarization.")
     parser.add_argument("audio_file", help="Path to the audio file to process.")
+    parser.add_argument("--language", default="auto", help="Language code (e.g., 'en', 'ko', 'ja') or 'auto' for automatic detection.")
     args = parser.parse_args()
 
     if not os.path.exists(args.audio_file):
@@ -220,7 +235,6 @@ if __name__ == "__main__":
     temp_model_dir = os.path.join(tempfile.gettempdir(), "sb_models")
     os.makedirs(temp_model_dir, exist_ok=True)
 
-    result = process_audio(args.audio_file)
+    result = process_audio(args.audio_file, args.language)
     
     print(json.dumps(result, indent=2)) # Added indent for readability
-

@@ -1,0 +1,49 @@
+{
+  "app": {
+    "title": "AI Enhanced Meeting Minutes Generator",
+    "description": "Generate professional meeting minutes from audio, video, or text transcripts"
+  },
+  "nav": {
+    "home": "Home",
+    "upload": "Upload",
+    "templates": "Templates",
+    "aiConfig": "AI Configuration",
+    "review": "Review Transcript"
+  },
+  "common": {
+    "loading": "Loading...",
+    "success": "Success!",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel",
+    "next": "Next",
+    "back": "Back",
+    "download": "Download",
+    "processing": "Processing...",
+    "selectLanguage": "Select Language"
+  },
+  "home": {
+    "welcome": "Welcome to the AI Enhanced Meeting Minutes Generator",
+    "description": "Transform your meeting recordings into professional minutes with AI assistance",
+    "getStarted": "Get Started",
+    "features": "Features",
+    "featuresList": {
+      "audio": "Process audio recordings",
+      "video": "Extract content from video files",
+      "transcript": "Work with existing transcripts",
+      "templates": "Multiple document templates",
+      "ai": "AI-powered summarization"
+    }
+  },
+  "upload": {
+    "title": "Upload Your File",
+    "dragDrop": "Drag and drop your file here, or click to browse",
+    "formats": "Supported formats: MP3, MP4, WAV, VTT, SRT, TXT, DOCX",
+    "audioLanguage": "Audio Language",
+    "autoDetect": "Auto-detect language",
+    "selectLanguage": "Select a language",
+    "uploading": "Uploading...",
+    "uploadSuccess": "File uploaded successfully!",
+    "uploadError": "Error uploading file"
+  }
+}

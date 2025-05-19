@@ -1,0 +1,49 @@
+{
+  "app": {
+    "title": "AI 강화 회의록 생성기",
+    "description": "오디오, 비디오 또는 텍스트 트랜스크립트에서 전문적인 회의록 생성"
+  },
+  "nav": {
+    "home": "홈",
+    "upload": "업로드",
+    "templates": "템플릿",
+    "aiConfig": "AI 설정",
+    "review": "트랜스크립트 검토"
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "success": "성공!",
+    "error": "오류",
+    "save": "저장",
+    "cancel": "취소",
+    "next": "다음",
+    "back": "이전",
+    "download": "다운로드",
+    "processing": "처리 중...",
+    "selectLanguage": "언어 선택"
+  },
+  "home": {
+    "welcome": "AI 강화 회의록 생성기에 오신 것을 환영합니다",
+    "description": "AI 지원으로 회의 녹음을 전문적인 회의록으로 변환하세요",
+    "getStarted": "시작하기",
+    "features": "기능",
+    "featuresList": {
+      "audio": "오디오 녹음 처리",
+      "video": "비디오 파일에서 콘텐츠 추출",
+      "transcript": "기존 트랜스크립트 작업",
+      "templates": "다양한 문서 템플릿",
+      "ai": "AI 기반 요약"
+    }
+  },
+  "upload": {
+    "title": "파일 업로드",
+    "dragDrop": "여기에 파일을 끌어다 놓거나 클릭하여 찾아보기",
+    "formats": "지원 형식: MP3, MP4, WAV, VTT, SRT, TXT, DOCX",
+    "audioLanguage": "오디오 언어",
+    "autoDetect": "언어 자동 감지",
+    "selectLanguage": "언어 선택",
+    "uploading": "업로드 중...",
+    "uploadSuccess": "파일이 성공적으로 업로드되었습니다!",
+    "uploadError": "파일 업로드 오류"
+  }
+}

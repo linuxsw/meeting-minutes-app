@@ -2,23 +2,45 @@
 
 import React, { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
+import { useTranslation } from 'next-i18next'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface FileUploaderProps {
   accept: string
-  onFileUpload: (file: File | null) => void
+  onFileUpload: (file: File | null, audioLanguage?: string) => void
   label: string
 }
 
+// Supported languages for audio processing
+const audioLanguages = [
+  { code: 'auto', name: 'Auto-detect' },
+  { code: 'en', name: 'English' },
+  { code: 'ko', name: 'Korean (한국어)' },
+  { code: 'ja', name: 'Japanese (日本語)' },
+  { code: 'zh', name: 'Chinese (中文)' },
+  { code: 'es', name: 'Spanish (Español)' },
+  { code: 'fr', name: 'French (Français)' },
+  { code: 'de', name: 'German (Deutsch)' },
+]
+
 export function FileUploader({ accept, onFileUpload, label }: FileUploaderProps) {
   const [file, setFile] = useState<File | null>(null)
+  const [audioLanguage, setAudioLanguage] = useState<string>('auto')
+  const { t } = useTranslation('common')
   
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       const selectedFile = acceptedFiles[0]
       setFile(selectedFile)
-      onFileUpload(selectedFile)
+      onFileUpload(selectedFile, audioLanguage)
     }
-  }, [onFileUpload])
+  }, [onFileUpload, audioLanguage])
   
   // Convert accept string to object format required by react-dropzone v14+
   const acceptObject: Record<string, string[]> = {}
@@ -36,9 +58,20 @@ export function FileUploader({ accept, onFileUpload, label }: FileUploaderProps)
     setFile(null)
     onFileUpload(null)
   }
+
+  const handleLanguageChange = (value: string) => {
+    setAudioLanguage(value)
+    if (file) {
+      onFileUpload(file, value)
+    }
+  }
+  
+  // Check if the file is audio or video
+  const isAudioOrVideo = file && 
+    (file.type.startsWith('audio/') || file.type.startsWith('video/'));
   
   return (
-    <div className="w-full">
+    <div className="w-full space-y-4">
       {!file ? (
         <div 
           {...getRootProps()} 
@@ -47,7 +80,8 @@ export function FileUploader({ accept, onFileUpload, label }: FileUploaderProps)
           }`}
         >
           <input {...getInputProps()} />
-          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="text-sm text-muted-foreground">{t(label)}</p>
+          <p className="text-xs text-muted-foreground mt-2">{t('upload.formats')}</p>
         </div>
       ) : (
         <div className="border rounded-md p-4">
@@ -71,9 +105,33 @@ export function FileUploader({ accept, onFileUpload, label }: FileUploaderProps)
               onClick={removeFile}
               className="text-sm text-red-500 hover:text-red-700"
             >
-              Remove
+              {t('common.cancel')}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Audio language selection - only show for audio/video files */}
+      {(isAudioOrVideo || !file) && (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">{t('upload.audioLanguage')}</label>
+          <Select value={audioLanguage} onValueChange={handleLanguageChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t('upload.selectLanguage')} />
+            </SelectTrigger>
+            <SelectContent>
+              {audioLanguages.map((language) => (
+                <SelectItem key={language.code} value={language.code}>
+                  {language.code === 'auto' ? t('upload.autoDetect') : language.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {audioLanguage === 'auto' && (
+            <p className="text-xs text-muted-foreground">
+              {t('upload.autoDetectHint', 'The system will attempt to automatically detect the spoken language.')}
+            </p>
+          )}
         </div>
       )}
     </div>
