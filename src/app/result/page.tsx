@@ -1,275 +1,330 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { ProcessedTranscript } from '@/lib/transcript-processor'
-import { MeetingTemplate, getTemplateById } from '@/lib/meeting-templates'
-import { MeetingData, generateDocument } from '@/lib/document-generator'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { PlusCircle, Trash2, ArrowRight, ArrowDown, Edit, Save } from 'lucide-react'
 
-interface ResultPageProps {
-  transcript: ProcessedTranscript
-  templateId: string
-  outputFormat: 'pdf' | 'docx' | 'html' | 'txt'
-}
-
-export default function ResultPage({
-  transcript,
-  templateId,
-  outputFormat
-}: ResultPageProps) {
+export default function ResultPage() {
   const router = useRouter()
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [meetingData, setMeetingData] = useState<MeetingData>({
-    title: '',
-    date: new Date().toISOString().split('T')[0],
-    attendees: transcript.speakers.map(speaker => speaker.name),
-    previousActionItems: []
-  })
-  const template = getTemplateById(templateId)
+  const [transcript, setTranscript] = useState<any>(null)
+  const [attendees, setAttendees] = useState<string[]>([])
+  const [actionItems, setActionItems] = useState<string[]>([''])
+  const [decisions, setDecisions] = useState<string[]>([''])
+  const [summary, setSummary] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [showAddAttendee, setShowAddAttendee] = useState(false)
+  const [newAttendeeName, setNewAttendeeName] = useState('')
   
-  const handleInputChange = (field: keyof MeetingData, value: any) => {
-    setMeetingData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
-  
-  const handleAttendeesChange = (index: number, value: string) => {
-    const newAttendees = [...meetingData.attendees]
-    newAttendees[index] = value
-    handleInputChange('attendees', newAttendees)
-  }
-  
-  const addAttendee = () => {
-    handleInputChange('attendees', [...meetingData.attendees, ''])
-  }
-  
-  const removeAttendee = (index: number) => {
-    const newAttendees = meetingData.attendees.filter((_, i) => i !== index)
-    handleInputChange('attendees', newAttendees)
-  }
-  
-  const handlePreviousActionItemChange = (index: number, value: string) => {
-    const newItems = [...(meetingData.previousActionItems || [])]
-    newItems[index] = value
-    handleInputChange('previousActionItems', newItems)
-  }
-  
-  const addPreviousActionItem = () => {
-    handleInputChange('previousActionItems', [...(meetingData.previousActionItems || []), ''])
-  }
-  
-  const removePreviousActionItem = (index: number) => {
-    const newItems = (meetingData.previousActionItems || []).filter((_, i) => i !== index)
-    handleInputChange('previousActionItems', newItems)
-  }
-  
-  const handleGenerateDocument = async () => {
-    setIsGenerating(true)
+  useEffect(() => {
+    // Try to load processed transcript from session storage
+    const savedTranscript = sessionStorage.getItem('processedTranscript')
+    const savedAttendees = sessionStorage.getItem('attendees')
     
-    try {
-      const blob = await generateDocument(templateId, transcript, meetingData, outputFormat)
-      
-      // Create a download link
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${meetingData.title || 'meeting-minutes'}.${getFileExtension(outputFormat)}`
-      document.body.appendChild(a)
-      a.click()
-      
-      // Clean up
-      URL.revokeObjectURL(url)
-      document.body.removeChild(a)
-    } catch (error) {
-      console.error('Error generating document:', error)
-      alert('Failed to generate document. Please try again.')
-    } finally {
-      setIsGenerating(false)
+    if (savedTranscript) {
+      try {
+        const parsedTranscript = JSON.parse(savedTranscript)
+        setTranscript(parsedTranscript)
+        
+        // Set attendees from session storage or from transcript speakers
+        if (savedAttendees) {
+          setAttendees(JSON.parse(savedAttendees))
+        } else if (parsedTranscript.speakers) {
+          setAttendees(parsedTranscript.speakers.map((speaker: any) => speaker.name))
+        }
+        
+        // Generate a simple summary
+        const summaryText = generateSummary(parsedTranscript)
+        setSummary(summaryText)
+        
+        setLoading(false)
+      } catch (err) {
+        console.error('Error loading processed transcript:', err)
+        setError('Failed to load processed transcript. Please try again.')
+        setLoading(false)
+      }
+    } else {
+      setError('No processed transcript found. Please process a transcript first.')
+      setLoading(false)
+    }
+  }, [])
+  
+  const generateSummary = (transcript: any): string => {
+    // Simple summary generation
+    const speakerCount = transcript.speakers.length
+    const segmentCount = transcript.segments.length
+    
+    return `This meeting included ${speakerCount} participants and contained ${segmentCount} conversation segments. The transcript has been processed and is ready for review.`
+  }
+  
+  const handleAddActionItem = () => {
+    setActionItems([...actionItems, ''])
+  }
+  
+  const handleUpdateActionItem = (index: number, value: string) => {
+    const updatedItems = [...actionItems]
+    updatedItems[index] = value
+    setActionItems(updatedItems)
+  }
+  
+  const handleRemoveActionItem = (index: number) => {
+    const updatedItems = [...actionItems]
+    updatedItems.splice(index, 1)
+    setActionItems(updatedItems)
+  }
+  
+  const handleAddDecision = () => {
+    setDecisions([...decisions, ''])
+  }
+  
+  const handleUpdateDecision = (index: number, value: string) => {
+    const updatedDecisions = [...decisions]
+    updatedDecisions[index] = value
+    setDecisions(updatedDecisions)
+  }
+  
+  const handleRemoveDecision = (index: number) => {
+    const updatedDecisions = [...decisions]
+    updatedDecisions.splice(index, 1)
+    setDecisions(updatedDecisions)
+  }
+  
+  const handleAddAttendee = () => {
+    if (newAttendeeName.trim()) {
+      setAttendees([...attendees, newAttendeeName.trim()])
+      setNewAttendeeName('')
+      setShowAddAttendee(false)
     }
   }
   
-  // Helper function to get file extension based on format
-  const getFileExtension = (format: string): string => {
-    switch (format) {
-      case 'pdf': return 'pdf'
-      case 'docx': return 'docx'
-      case 'html': return 'html'
-      case 'txt': return 'txt'
-      default: return 'pdf'
-    }
+  const handleUpdateAttendee = (index: number, value: string) => {
+    const updatedAttendees = [...attendees]
+    updatedAttendees[index] = value
+    setAttendees(updatedAttendees)
   }
   
-  if (!template) {
-    return <div className="container py-10">Template not found</div>
+  const handleRemoveAttendee = (index: number) => {
+    const updatedAttendees = [...attendees]
+    updatedAttendees.splice(index, 1)
+    setAttendees(updatedAttendees)
+  }
+  
+  const handleGenerateMinutes = () => {
+    // Prepare meeting minutes data
+    const meetingMinutes = {
+      title: transcript?.metadata?.title || 'Meeting Minutes',
+      date: transcript?.metadata?.date || new Date().toISOString().split('T')[0],
+      attendees,
+      summary,
+      actionItems: actionItems.filter(item => item.trim()),
+      decisions: decisions.filter(decision => decision.trim()),
+      transcript
+    }
+    
+    // Save to session storage
+    sessionStorage.setItem('meetingMinutes', JSON.stringify(meetingMinutes))
+    
+    // Navigate to minutes page
+    router.push('/minutes')
+  }
+  
+  if (loading) {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Generating Meeting Minutes</h1>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    )
+  }
+  
+  if (error) {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Error</h1>
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+        <Button onClick={() => router.push('/')}>Go Back</Button>
+      </div>
+    )
   }
   
   return (
-    <div className="container py-10">
-      <h1 className="text-3xl font-bold mb-6">Generate Meeting Minutes</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Meeting Minutes</h1>
       
-      <Card className="p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Meeting Information</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+          <Label htmlFor="meetingTitle">Meeting Title</Label>
+          <Input
+            id="meetingTitle"
+            value={transcript?.metadata?.title || ''}
+            readOnly
+            className="mb-2"
+          />
+        </div>
+        <div>
+          <Label htmlFor="meetingDate">Meeting Date</Label>
+          <Input
+            id="meetingDate"
+            value={transcript?.metadata?.date || ''}
+            readOnly
+            className="mb-2"
+          />
+        </div>
+      </div>
+      
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-xl font-semibold">Attendees</h2>
+          <button
+            onClick={() => setShowAddAttendee(true)}
+            className="text-sm text-primary hover:underline flex items-center"
+          >
+            <PlusCircle className="w-4 h-4 mr-1" />
+            Add Participant
+          </button>
+        </div>
         
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm mb-1">Meeting Title</label>
-            <input
-              type="text"
-              value={meetingData.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder={template.name}
-              className="w-full p-2 border rounded-md bg-background"
+        {showAddAttendee && (
+          <div className="flex items-center space-x-2 mb-2">
+            <Input
+              value={newAttendeeName}
+              onChange={(e) => setNewAttendeeName(e.target.value)}
+              placeholder="Enter attendee name"
+              className="flex-1"
             />
+            <Button onClick={handleAddAttendee} size="sm">
+              Add
+            </Button>
+            <Button onClick={() => setShowAddAttendee(false)} variant="outline" size="sm">
+              Cancel
+            </Button>
           </div>
-          
-          <div>
-            <label className="block text-sm mb-1">Date</label>
-            <input
-              type="date"
-              value={meetingData.date}
-              onChange={(e) => handleInputChange('date', e.target.value)}
-              className="w-full p-2 border rounded-md bg-background"
-            />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm mb-1">Start Time (Optional)</label>
-              <input
-                type="time"
-                value={meetingData.startTime || ''}
-                onChange={(e) => handleInputChange('startTime', e.target.value)}
-                className="w-full p-2 border rounded-md bg-background"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm mb-1">End Time (Optional)</label>
-              <input
-                type="time"
-                value={meetingData.endTime || ''}
-                onChange={(e) => handleInputChange('endTime', e.target.value)}
-                className="w-full p-2 border rounded-md bg-background"
-              />
-            </div>
-          </div>
-          
-          <div>
-            <label className="block text-sm mb-1">Location (Optional)</label>
-            <input
-              type="text"
-              value={meetingData.location || ''}
-              onChange={(e) => handleInputChange('location', e.target.value)}
-              placeholder="Virtual / Conference Room / etc."
-              className="w-full p-2 border rounded-md bg-background"
-            />
-          </div>
-          
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-sm">Attendees</label>
-              <button
-                onClick={addAttendee}
-                className="text-sm text-primary hover:underline"
-              >
-                + Add Attendee
-              </button>
-            </div>
-            
-            {meetingData.attendees.map((attendee, index) => (
-              <div key={index} className="flex items-center space-x-2 mb-2">
-                <input
-                  type="text"
-                  value={attendee}
-                  onChange={(e) => handleAttendeesChange(index, e.target.value)}
-                  className="flex-1 p-2 border rounded-md bg-background"
-                />
-                <button
-                  onClick={() => removeAttendee(index)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-          
-          {template.sections.some(section => section.id === 'previous-action-items') && (
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-sm">Previous Action Items</label>
-                <button
-                  onClick={addPreviousActionItem}
-                  className="text-sm text-primary hover:underline"
-                >
-                  + Add Item
-                </button>
-              </div>
-              
-              {(meetingData.previousActionItems || []).map((item, index) => (
-                <div key={index} className="flex items-center space-x-2 mb-2">
-                  <input
-                    type="text"
-                    value={item}
-                    onChange={(e) => handlePreviousActionItemChange(index, e.target.value)}
-                    className="flex-1 p-2 border rounded-md bg-background"
-                  />
+        )}
+        
+        {attendees.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
+            {attendees.map((attendee, index) => (
+              <div key={index} className="flex items-center justify-between p-2 border rounded-md">
+                <span>{attendee}</span>
+                <div className="flex items-center space-x-1">
                   <button
-                    onClick={() => removePreviousActionItem(index)}
+                    onClick={() => {
+                      const newName = prompt('Update attendee name', attendee)
+                      if (newName && newName.trim() && newName !== attendee) {
+                        handleUpdateAttendee(index, newName.trim())
+                      }
+                    }}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleRemoveAttendee(index)}
                     className="text-red-500 hover:text-red-700"
                   >
-                    Remove
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </Card>
-      
-      <Card className="p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Template: {template.name}</h2>
-        <p className="text-muted-foreground mb-4">{template.description}</p>
-        
-        <div className="space-y-2">
-          <h3 className="font-medium">Sections:</h3>
-          <ul className="list-disc pl-5 space-y-1">
-            {template.sections.map(section => (
-              <li key={section.id} className="text-sm">
-                {section.title}
-                {section.required && <span className="text-red-500 ml-1">*</span>}
-              </li>
+              </div>
             ))}
-          </ul>
-        </div>
-      </Card>
-      
-      <Card className="p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Output Format</h2>
-        <div className="flex items-center space-x-2">
-          <div className="px-3 py-1 bg-primary text-primary-foreground rounded-md uppercase text-sm">
-            {outputFormat}
           </div>
-        </div>
-      </Card>
+        ) : (
+          <div className="text-center p-4 border rounded-md text-gray-500 mb-4">
+            No attendees added yet. Add participants using the button above.
+          </div>
+        )}
+      </div>
       
-      <div className="flex justify-end space-x-4">
-        <button
-          onClick={() => router.back()}
-          className="px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md"
-        >
-          Back
-        </button>
+      <div className="mb-6">
+        <Label htmlFor="summary" className="text-xl font-semibold block mb-2">
+          Summary
+        </Label>
+        <Textarea
+          id="summary"
+          value={summary}
+          onChange={(e) => setSummary(e.target.value)}
+          className="min-h-32"
+        />
+      </div>
+      
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-xl font-semibold">Action Items</h2>
+          <button
+            onClick={handleAddActionItem}
+            className="text-sm text-primary hover:underline flex items-center"
+          >
+            <PlusCircle className="w-4 h-4 mr-1" />
+            Add Action Item
+          </button>
+        </div>
         
-        <button
-          onClick={handleGenerateDocument}
-          disabled={isGenerating}
-          className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md disabled:opacity-50"
-        >
-          {isGenerating ? 'Generating...' : 'Generate and Download'}
-        </button>
+        {actionItems.map((item, index) => (
+          <div key={index} className="flex items-center space-x-2 mb-2">
+            <Input
+              value={item}
+              onChange={(e) => handleUpdateActionItem(index, e.target.value)}
+              placeholder={`Action item ${index + 1}`}
+              className="flex-1"
+            />
+            <Button
+              onClick={() => handleRemoveActionItem(index)}
+              variant="outline"
+              size="icon"
+              className="text-red-500"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
+      </div>
+      
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-xl font-semibold">Decisions</h2>
+          <button
+            onClick={handleAddDecision}
+            className="text-sm text-primary hover:underline flex items-center"
+          >
+            <PlusCircle className="w-4 h-4 mr-1" />
+            Add Decision
+          </button>
+        </div>
+        
+        {decisions.map((decision, index) => (
+          <div key={index} className="flex items-center space-x-2 mb-2">
+            <Input
+              value={decision}
+              onChange={(e) => handleUpdateDecision(index, e.target.value)}
+              placeholder={`Decision ${index + 1}`}
+              className="flex-1"
+            />
+            <Button
+              onClick={() => handleRemoveDecision(index)}
+              variant="outline"
+              size="icon"
+              className="text-red-500"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
+      </div>
+      
+      <div className="flex justify-end">
+        <Button onClick={handleGenerateMinutes} className="flex items-center">
+          Generate Minutes
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
       </div>
     </div>
   )

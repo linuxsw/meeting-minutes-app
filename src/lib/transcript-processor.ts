@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
 // Types for transcript data
 export interface Speaker {
@@ -19,10 +20,218 @@ export interface TranscriptSegment {
 export interface ProcessedTranscript {
   speakers: Speaker[]
   segments: TranscriptSegment[]
+  metadata?: {
+    title?: string
+    date?: string
+  }
 }
 
-// Function to parse VTT file content
+// Function to parse Microsoft Teams VTT file content
+export function parseTeamsVTT(vttContent: string): ProcessedTranscript {
+  console.log('Parsing Microsoft Teams VTT format');
+  const lines = vttContent.split('\n')
+  const segments: TranscriptSegment[] = []
+  const speakerMap = new Map<string, Speaker>()
+  
+  let currentSegment: Partial<TranscriptSegment> | null = null
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim()
+    
+    // Skip empty lines and WEBVTT header
+    if (!line || line === 'WEBVTT') continue
+    
+    // Skip metadata lines that contain identifiers like 1c97f8d8-4a68-4dd0-ad98-73bd2466207f/16-0
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/\d+-\d+$/.test(line)) {
+      continue
+    }
+    
+    // Parse timestamp line (e.g., "00:00:10.500 --> 00:00:15.000")
+    if (line.includes('-->')) {
+      const times = line.split('-->').map(t => t.trim())
+      const startTime = convertTimestampToSeconds(times[0])
+      const endTime = convertTimestampToSeconds(times[1])
+      
+      currentSegment = {
+        id: `segment-${segments.length + 1}`,
+        startTime,
+        endTime,
+        speakerId: '',
+        text: ''
+      }
+      continue
+    }
+    
+    // If we have a current segment and this line contains text
+    if (currentSegment && line && !line.includes('-->')) {
+      // Check for Microsoft Teams speaker format: <v Speaker Name>Text</v>
+      const teamsMatch = line.match(/<v\s+([^>]+)>(.*?)(?:<\/v>)?$/)
+      
+      if (teamsMatch) {
+        const speakerName = teamsMatch[1].trim()
+        const text = teamsMatch[2].trim()
+        
+        // Create or get speaker ID
+        let speakerId = ''
+        for (const [id, speaker] of speakerMap.entries()) {
+          if (speaker.name === speakerName) {
+            speakerId = id
+            break
+          }
+        }
+        
+        if (!speakerId) {
+          speakerId = `speaker-${speakerMap.size + 1}`
+          speakerMap.set(speakerId, { id: speakerId, name: speakerName })
+        }
+        
+        currentSegment.speakerId = speakerId
+        currentSegment.text = text
+      } 
+      // Check if line starts with a standard speaker name (e.g., "John: Hello everyone")
+      else {
+        const speakerMatch = line.match(/^([^:]+):\s*(.*)$/)
+        
+        if (speakerMatch) {
+          const speakerName = speakerMatch[1].trim()
+          const text = speakerMatch[2].trim()
+          
+          // Create or get speaker ID
+          let speakerId = ''
+          for (const [id, speaker] of speakerMap.entries()) {
+            if (speaker.name === speakerName) {
+              speakerId = id
+              break
+            }
+          }
+          
+          if (!speakerId) {
+            speakerId = `speaker-${speakerMap.size + 1}`
+            speakerMap.set(speakerId, { id: speakerId, name: speakerName })
+          }
+          
+          currentSegment.speakerId = speakerId
+          currentSegment.text = text
+        } else {
+          // If no speaker detected, append to current text
+          currentSegment.text = (currentSegment.text || '') + ' ' + line
+        }
+      }
+      
+      // If next line is empty, a timestamp, or a new segment identifier, add the current segment
+      if (i === lines.length - 1 || !lines[i + 1] || 
+          lines[i + 1].includes('-->') || 
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/\d+-\d+$/.test(lines[i + 1])) {
+        if (currentSegment.speakerId && currentSegment.text) {
+          segments.push(currentSegment as TranscriptSegment)
+        } else if (currentSegment.text) {
+          // If we have text but no speaker, assign to "Unknown"
+          const speakerId = 'unknown'
+          if (!speakerMap.has(speakerId)) {
+            speakerMap.set(speakerId, { id: speakerId, name: 'Unknown' })
+          }
+          currentSegment.speakerId = speakerId
+          segments.push(currentSegment as TranscriptSegment)
+        }
+        currentSegment = null
+      }
+    }
+  }
+  
+  // If we have no segments but there's content, try a simpler approach
+  if (segments.length === 0 && vttContent.trim().length > 0) {
+    console.log('No segments found with standard parsing, trying fallback method');
+    return parseVTTFallback(vttContent);
+  }
+  
+  return {
+    speakers: Array.from(speakerMap.values()),
+    segments
+  }
+}
+
+// Fallback parser for VTT files that don't match expected format
+function parseVTTFallback(vttContent: string): ProcessedTranscript {
+  console.log('Using VTT fallback parser');
+  const lines = vttContent.split('\n').filter(line => line.trim());
+  const segments: TranscriptSegment[] = [];
+  const speakerMap = new Map<string, Speaker>();
+  
+  let currentTime = 0;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Skip WEBVTT header and empty lines
+    if (!line || line === 'WEBVTT') continue;
+    
+    // Skip timestamp lines and metadata
+    if (line.includes('-->') || /^\d+$/.test(line) || 
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/.test(line)) {
+      continue;
+    }
+    
+    // Try to extract speaker information
+    let speakerName = 'Unknown';
+    let text = line;
+    
+    // Check for <v Speaker>Text</v> format
+    const teamsMatch = line.match(/<v\s+([^>]+)>(.*?)(?:<\/v>)?$/);
+    if (teamsMatch) {
+      speakerName = teamsMatch[1].trim();
+      text = teamsMatch[2].trim();
+    } 
+    // Check for "Speaker: Text" format
+    else {
+      const speakerMatch = line.match(/^([^:]+):\s*(.*)$/);
+      if (speakerMatch) {
+        speakerName = speakerMatch[1].trim();
+        text = speakerMatch[2].trim();
+      }
+    }
+    
+    // Create or get speaker ID
+    let speakerId = '';
+    for (const [id, speaker] of speakerMap.entries()) {
+      if (speaker.name === speakerName) {
+        speakerId = id;
+        break;
+      }
+    }
+    
+    if (!speakerId) {
+      speakerId = `speaker-${speakerMap.size + 1}`;
+      speakerMap.set(speakerId, { id: speakerId, name: speakerName });
+    }
+    
+    // Create segment with approximate timing
+    const startTime = currentTime;
+    currentTime += 5; // 5 seconds per segment
+    
+    segments.push({
+      id: `segment-${segments.length + 1}`,
+      speakerId,
+      startTime,
+      endTime: currentTime,
+      text
+    });
+  }
+  
+  return {
+    speakers: Array.from(speakerMap.values()),
+    segments
+  };
+}
+
+// Function to parse standard VTT file content
 export function parseVTT(vttContent: string): ProcessedTranscript {
+  // First check if this is a Microsoft Teams VTT format
+  if (vttContent.includes('<v ') && vttContent.includes('</v>')) {
+    console.log('Detected Microsoft Teams VTT format, using specialized parser');
+    return parseTeamsVTT(vttContent);
+  }
+  
+  console.log('Using standard VTT parser');
   const lines = vttContent.split('\n')
   const segments: TranscriptSegment[] = []
   const speakerMap = new Map<string, Speaker>()
@@ -82,13 +291,27 @@ export function parseVTT(vttContent: string): ProcessedTranscript {
       }
       
       // If next line is empty or a timestamp, add the current segment
-      if (!lines[i + 1] || lines[i + 1].includes('-->')) {
+      if (i === lines.length - 1 || !lines[i + 1] || lines[i + 1].includes('-->')) {
         if (currentSegment.speakerId && currentSegment.text) {
+          segments.push(currentSegment as TranscriptSegment)
+        } else if (currentSegment.text) {
+          // If we have text but no speaker, assign to "Unknown"
+          const speakerId = 'unknown'
+          if (!speakerMap.has(speakerId)) {
+            speakerMap.set(speakerId, { id: speakerId, name: 'Unknown' })
+          }
+          currentSegment.speakerId = speakerId
           segments.push(currentSegment as TranscriptSegment)
         }
         currentSegment = null
       }
     }
+  }
+  
+  // If we have no segments but there's content, try the fallback method
+  if (segments.length === 0 && vttContent.trim().length > 0) {
+    console.log('No segments found with standard parsing, trying fallback method');
+    return parseVTTFallback(vttContent);
   }
   
   return {
@@ -252,131 +475,101 @@ function convertTimestampToSeconds(timestamp: string): number {
   return seconds
 }
 
-// Function to detect transcript format and parse accordingly
-export function parseTranscript(content: string): ProcessedTranscript {
-  if (content.trim().startsWith('WEBVTT')) {
-    return parseVTT(content)
-  } else if (content.includes('-->') && /^\d+\s*\n\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}/m.test(content)) {
-    return parseSRT(content)
-  } else {
-    return parsePlainText(content)
+// Main function to detect transcript format and parse accordingly
+export async function parseTranscript(content: string, fileName?: string): Promise<ProcessedTranscript> {
+  console.log('Parsing transcript with filename:', fileName);
+  
+  // For browser environment, use direct parsing
+  if (typeof window !== 'undefined') {
+    // For .vtt files, check for Microsoft Teams format first
+    if (fileName && fileName.toLowerCase().endsWith('.vtt')) {
+      console.log('Processing .vtt file:', fileName);
+      
+      // Check for Microsoft Teams VTT format
+      if (content.includes('<v ')) {
+        console.log('Detected Microsoft Teams VTT format');
+        return parseTeamsVTT(content);
+      }
+      
+      // Standard VTT format
+      return parseVTT(content);
+    }
+    
+    // For other file types, use the existing logic
+    if (content.trim().startsWith('WEBVTT')) {
+      // Check for Microsoft Teams VTT format
+      if (content.includes('<v ')) {
+        console.log('Detected Microsoft Teams VTT format');
+        return parseTeamsVTT(content);
+      }
+      return parseVTT(content);
+    } else if (content.includes('-->') && /^\d+\s*\n\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}/m.test(content)) {
+      return parseSRT(content);
+    } else {
+      // Try to parse as plain text with speaker detection
+      return parsePlainText(content);
+    }
+  }
+  
+  // For server environment, use API routes for specific file types
+  try {
+    // For .vtt files
+    if (fileName && fileName.toLowerCase().endsWith('.vtt')) {
+      console.log('Processing .vtt file on server:', fileName);
+      
+      // Check for Microsoft Teams VTT format
+      if (content.includes('<v ')) {
+        console.log('Detected Microsoft Teams VTT format on server');
+        return parseTeamsVTT(content);
+      }
+      
+      // Standard VTT format
+      return parseVTT(content);
+    }
+    
+    // For other file types, use the existing logic
+    if (content.trim().startsWith('WEBVTT')) {
+      // Check for Microsoft Teams VTT format
+      if (content.includes('<v ')) {
+        console.log('Detected Microsoft Teams VTT format on server');
+        return parseTeamsVTT(content);
+      }
+      return parseVTT(content);
+    } else if (content.includes('-->') && /^\d+\s*\n\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}/m.test(content)) {
+      return parseSRT(content);
+    } else {
+      // Try to parse as plain text with speaker detection
+      return parsePlainText(content);
+    }
+  } catch (error) {
+    console.error('Error parsing transcript:', error);
+    // Fallback to plain text parsing
+    return parsePlainText(content);
   }
 }
 
-// Hook for managing speakers
-export function useSpeakerManagement(initialSpeakers: Speaker[] = []) {
-  const [speakers, setSpeakers] = useState<Speaker[]>(initialSpeakers)
-  
-  const updateSpeakerName = (speakerId: string, newName: string) => {
-    setSpeakers(prev => 
-      prev.map(speaker => 
-        speaker.id === speakerId 
-          ? { ...speaker, name: newName } 
-          : speaker
-      )
-    )
-  }
-  
-  const mergeSpeakers = (sourceId: string, targetId: string) => {
-    if (sourceId === targetId) return
-    
-    // Get the target speaker
-    const targetSpeaker = speakers.find(s => s.id === targetId)
-    if (!targetSpeaker) return
-    
-    // Remove the source speaker
-    setSpeakers(prev => prev.filter(s => s.id !== sourceId))
-    
-    // Update all segments with the source speaker ID to use the target ID
-    // This would be done in a real application by updating the transcript segments
-  }
-  
+// Function to create a simple test transcript for development
+export function createTestTranscript(): ProcessedTranscript {
   return {
-    speakers,
-    setSpeakers,
-    updateSpeakerName,
-    mergeSpeakers
-  }
-}
-
-// Function to extract key points from transcript
-export function extractKeyPoints(transcript: ProcessedTranscript): string[] {
-  // In a real application, this would use NLP to identify important points
-  // For now, we'll simulate by extracting sentences with key phrases
-  
-  const keyPhrases = [
-    'important', 'priority', 'deadline', 'decision', 'action item',
-    'next steps', 'follow up', 'agreed', 'consensus', 'conclusion'
-  ]
-  
-  const keyPoints: string[] = []
-  
-  for (const segment of transcript.segments) {
-    const sentences = segment.text.split(/[.!?]+/).filter(s => s.trim())
-    
-    for (const sentence of sentences) {
-      const lowerSentence = sentence.toLowerCase()
-      
-      if (keyPhrases.some(phrase => lowerSentence.includes(phrase))) {
-        const speaker = transcript.speakers.find(s => s.id === segment.speakerId)
-        const speakerName = speaker ? speaker.name : 'Unknown'
-        
-        keyPoints.push(`${speakerName}: ${sentence.trim()}`)
-      }
+    speakers: [
+      { id: 'speaker-1', name: 'John Doe' },
+      { id: 'speaker-2', name: 'Jane Smith' },
+      { id: 'speaker-3', name: 'Bob Johnson' }
+    ],
+    segments: [
+      { id: 'segment-1', speakerId: 'speaker-1', startTime: 0, endTime: 10, text: 'Hello everyone, welcome to the meeting.' },
+      { id: 'segment-2', speakerId: 'speaker-2', startTime: 11, endTime: 20, text: 'Thanks John. Let\'s start with the project updates.' },
+      { id: 'segment-3', speakerId: 'speaker-3', startTime: 21, endTime: 30, text: 'I\'ve completed the first phase of the development.' },
+      { id: 'segment-4', speakerId: 'speaker-1', startTime: 31, endTime: 40, text: 'Great job, Bob! What about the testing?' },
+      { id: 'segment-5', speakerId: 'speaker-2', startTime: 41, endTime: 50, text: 'I\'ll handle the testing this week.' },
+      { id: 'segment-6', speakerId: 'speaker-3', startTime: 51, endTime: 60, text: 'Perfect. I\'ll continue with the second phase then.' },
+      { id: 'segment-7', speakerId: 'speaker-1', startTime: 61, endTime: 70, text: 'Let\'s schedule a follow-up meeting next week.' },
+      { id: 'segment-8', speakerId: 'speaker-2', startTime: 71, endTime: 80, text: 'Sounds good. I\'ll send out the calendar invites.' },
+      { id: 'segment-9', speakerId: 'speaker-3', startTime: 81, endTime: 90, text: 'Thanks everyone. See you next week.' }
+    ],
+    metadata: {
+      title: 'Project Status Meeting',
+      date: new Date().toISOString().split('T')[0]
     }
   }
-  
-  return keyPoints
-}
-
-// Function to extract action items from transcript
-export function extractActionItems(transcript: ProcessedTranscript): string[] {
-  // In a real application, this would use NLP to identify action items
-  // For now, we'll simulate by looking for specific patterns
-  
-  const actionItemPatterns = [
-    /\b([A-Z][a-z]+) (?:will|should|needs to|has to|is going to) ([^.!?]+)/g,
-    /\baction item\b[^.!?]*?:\s*([^.!?]+)/gi,
-    /\btask\b[^.!?]*?:\s*([^.!?]+)/gi,
-    /\b(assigned to|responsible)[^.!?]*?:\s*([^.!?]+)/gi
-  ]
-  
-  const actionItems: string[] = []
-  
-  for (const segment of transcript.segments) {
-    for (const pattern of actionItemPatterns) {
-      const matches = segment.text.matchAll(pattern)
-      
-      for (const match of matches) {
-        actionItems.push(match[0].trim())
-      }
-    }
-  }
-  
-  return actionItems
-}
-
-// Function to summarize transcript
-export function summarizeTranscript(transcript: ProcessedTranscript): string {
-  // In a real application, this would use NLP to generate a summary
-  // For now, we'll simulate by combining the first sentence from each speaker
-  
-  const speakerFirstStatements = new Map<string, string>()
-  
-  for (const segment of transcript.segments) {
-    if (!speakerFirstStatements.has(segment.speakerId)) {
-      speakerFirstStatements.set(segment.speakerId, segment.text)
-    }
-  }
-  
-  let summary = 'Meeting Summary:\n\n'
-  
-  for (const [speakerId, statement] of speakerFirstStatements.entries()) {
-    const speaker = transcript.speakers.find(s => s.id === speakerId)
-    const speakerName = speaker ? speaker.name : 'Unknown'
-    
-    summary += `${speakerName}: ${statement}\n\n`
-  }
-  
-  return summary
 }

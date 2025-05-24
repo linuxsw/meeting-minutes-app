@@ -7,29 +7,66 @@ interface FileUploaderProps {
   accept: string
   onFileUpload: (file: File | null) => void
   label: string
+  initialFile?: File | null
 }
 
-export function FileUploader({ accept, onFileUpload, label }: FileUploaderProps) {
-  const [file, setFile] = useState<File | null>(null)
+export function FileUploader({ accept, onFileUpload, label, initialFile = null }: FileUploaderProps) {
+  const [file, setFile] = useState<File | null>(initialFile)
+  
+  // If initialFile changes, update the state
+  React.useEffect(() => {
+    if (initialFile) {
+      setFile(initialFile);
+    }
+  }, [initialFile]);
   
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       const selectedFile = acceptedFiles[0]
+      console.log('File selected:', selectedFile.name, selectedFile.type);
       setFile(selectedFile)
       onFileUpload(selectedFile)
     }
   }, [onFileUpload])
   
   // Convert accept string to object format required by react-dropzone v14+
+  // Use proper MIME types for transcript files
   const acceptObject: Record<string, string[]> = {}
-  accept.split(',').forEach(type => {
-    acceptObject[type.trim()] = []
-  })
+  
+  if (accept.includes('.vtt')) {
+    acceptObject['text/vtt'] = ['.vtt']
+    // Add additional MIME types that browsers might use for VTT files
+    acceptObject['text/plain'] = ['.vtt']
+  }
+  
+  if (accept.includes('.srt')) {
+    acceptObject['application/x-subrip'] = ['.srt']
+    acceptObject['text/plain'] = ['.srt']
+  }
+  
+  if (accept.includes('.txt')) {
+    acceptObject['text/plain'] = ['.txt']
+  }
+  
+  if (accept.includes('.mp4')) {
+    acceptObject['video/mp4'] = ['.mp4']
+  }
+  
+  // If no specific types were added, fall back to the original approach
+  if (Object.keys(acceptObject).length === 0) {
+    accept.split(',').forEach(type => {
+      acceptObject[type.trim()] = []
+    })
+  }
   
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: acceptObject,
-    maxFiles: 1
+    maxFiles: 1,
+    // Make sure we accept any file if there's an issue with MIME types
+    noClick: false,
+    noKeyboard: false,
+    preventDropOnDocument: true,
   })
   
   const removeFile = () => {
@@ -68,7 +105,10 @@ export function FileUploader({ accept, onFileUpload, label }: FileUploaderProps)
               </div>
             </div>
             <button 
-              onClick={removeFile}
+              onClick={(e) => {
+                e.stopPropagation();
+                removeFile();
+              }}
               className="text-sm text-red-500 hover:text-red-700"
             >
               Remove

@@ -1,0 +1,1221 @@
+WEBVTT
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/16-0
+00:00:03.505 --> 00:00:06.345
+<v Seungweon Park>Oh, the error is. Yeah, the V rack.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/21-0
+00:00:06.665 --> 00:00:09.785
+<v Seungweon Park>You will get us the oh,
+where is the V rack?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/24-0
+00:00:11.445 --> 00:00:12.765
+<v Seungweon Park>Why didn't come up?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/37-0
+00:00:15.145 --> 00:00:19.225
+<v Travis Morgan>I I think I I talked to David yesterday
+before he left for vacation and.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/57-0
+00:00:21.215 --> 00:00:26.941
+<v Travis Morgan>It might be as simple as there's just a
+step that's missing at the beginning,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/57-1
+00:00:26.941 --> 00:00:28.335
+<v Travis Morgan>but I I don't know.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/67-0
+00:00:28.335 --> 00:00:31.975
+<v Travis Morgan>We would need to see the files and see if
+we could recreate the problem I think.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/69-0
+00:00:32.265 --> 00:00:32.865
+<v Seungweon Park>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/78-0
+00:00:33.305 --> 00:00:38.065
+<v Seungweon Park>So this is the one that we have seen like
+some error.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/112-0
+00:00:39.555 --> 00:00:43.406
+<v Seungweon Park>As soon as we deployed and then has the
+assume error,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/112-1
+00:00:43.406 --> 00:00:49.395
+<v Seungweon Park>then we will see the status as the error
+and then when we go inside of it and then.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/103-0
+00:00:46.475 --> 00:00:46.675
+<v Travis Morgan>Mm hmm.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/139-0
+00:00:51.075 --> 00:00:55.803
+<v Seungweon Park>This component should be installed
+correctly but sometime it doesn't show</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/139-1
+00:00:55.803 --> 00:00:59.955
+<v Seungweon Park>any component or sometimes it shows the
+component has a failure.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/149-0
+00:01:01.605 --> 00:01:04.765
+<v Seungweon Park>So that was the observation we send.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/151-0
+00:01:05.665 --> 00:01:06.105
+<v Travis Morgan>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/158-0
+00:01:09.175 --> 00:01:14.255
+<v Seungweon Park>OK. And also another issue is that.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/162-0
+00:01:15.675 --> 00:01:16.315
+<v Seungweon Park>There is the meeting.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/212-0
+00:01:17.875 --> 00:01:23.343
+<v Seungweon Park>The issue that I at I already addressed
+this one, this one. Yeah.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/212-1
+00:01:23.343 --> 00:01:29.721
+<v Seungweon Park>So when we deploy once we deploy the V
+rack successfully and then we've been</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/212-2
+00:01:29.721 --> 00:01:36.348
+<v Seungweon Park>working on you know deploying to another
+manually once we get into the security</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/212-3
+00:01:36.348 --> 00:01:38.915
+<v Seungweon Park>and and then we try to use the.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/215-0
+00:01:38.915 --> 00:01:39.555
+<v Seungweon Park>V rack instance.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/224-0
+00:01:40.225 --> 00:01:44.105
+<v Seungweon Park>For other command, sometimes we run.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/230-0
+00:01:44.105 --> 00:01:48.185
+<v Seungweon Park>There are certain tasks through the
+pipeline somehow.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/258-0
+00:01:50.185 --> 00:01:56.174
+<v Seungweon Park>We just running the command and using the
+VR command and then somehow they delete</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/258-1
+00:01:56.174 --> 00:02:01.505
+<v Seungweon Park>the V rack so that we had to recreate the
+V rack stuff from the scratch.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/260-0
+00:02:01.985 --> 00:02:03.585
+<v Seungweon Park>I don't know what's happening but.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/298-0
+00:02:05.115 --> 00:02:09.022
+<v Seungweon Park>My understanding when I look at the VR
+control source code,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/298-1
+00:02:09.022 --> 00:02:14.297
+<v Seungweon Park>the VR control code is the just a client
+application and then in the server side</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/298-2
+00:02:14.297 --> 00:02:19.115
+<v Seungweon Park>they are just communicating with a secure
+shell. So that if there is a 2.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/310-0
+00:02:19.465 --> 00:02:25.425
+<v Seungweon Park>Client you know concurrently they're
+accessing it somehow that they tended to.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/318-0
+00:02:26.435 --> 00:02:30.355
+<v Seungweon Park>Some, you know,
+unusual behavior happening.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/332-0
+00:02:30.355 --> 00:02:35.482
+<v Seungweon Park>So that's why I lost just several time
+over my V rack. When I run through the,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/332-1
+00:02:35.482 --> 00:02:36.715
+<v Seungweon Park>you know, pipeline.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/335-0
+00:02:36.715 --> 00:02:38.595
+<v Seungweon Park>Also my another colleague.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/339-0
+00:02:38.595 --> 00:02:40.875
+<v Seungweon Park>Also, he experienced the same thing.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/372-0
+00:02:42.335 --> 00:02:45.012
+<v Travis Morgan>You were trying to create.
+When I read this,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/372-1
+00:02:45.012 --> 00:02:49.950
+<v Travis Morgan>it sounded to me like you were trying to
+create a rack that already existed and it</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/372-2
+00:02:49.950 --> 00:02:53.877
+<v Travis Morgan>deleted the old one when when you ran the
+create operation again.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/361-0
+00:02:51.675 --> 00:02:52.035
+<v Seungweon Park>Yes.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/372-3
+00:02:53.877 --> 00:02:57.505
+<v Travis Morgan>OK and what you were saying was that
+shouldn't happen if it.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/367-0
+00:02:54.305 --> 00:02:54.625
+<v Seungweon Park>Yeah.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/385-0
+00:02:57.505 --> 00:03:00.825
+<v Travis Morgan>Already there it should be like I can't
+create it because there's already rack</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/385-1
+00:03:00.825 --> 00:03:01.455
+<v Travis Morgan>with that name.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/396-0
+00:03:01.665 --> 00:03:03.665
+<v Seungweon Park>Right then they need to skip it.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/391-0
+00:03:02.495 --> 00:03:02.975
+<v Travis Morgan>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/399-0
+00:03:03.745 --> 00:03:05.505
+<v Seungweon Park>But somehow they are deleting it.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/400-0
+00:03:04.545 --> 00:03:05.985
+<v Travis Morgan>Yeah. OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/421-0
+00:03:07.825 --> 00:03:10.319
+<v Travis Morgan>When when I saw David's response to you
+on this,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/421-1
+00:03:10.319 --> 00:03:14.185
+<v Travis Morgan>he made it sound like that's expected
+behavior. Which kind of surprised me.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/430-0
+00:03:14.185 --> 00:03:18.785
+<v Travis Morgan>So I'm gonna follow up with him about
+that when he gets back.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/427-0
+00:03:17.065 --> 00:03:17.505
+<v Seungweon Park>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/438-0
+00:03:19.845 --> 00:03:21.245
+<v Seungweon Park>Yeah. And or is it?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/440-0
+00:03:20.545 --> 00:03:23.025
+<v Travis Morgan>Because because I mean not knowing.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/453-0
+00:03:24.945 --> 00:03:27.065
+<v Travis Morgan>Like the requirements and why it does
+what it does today.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/461-0
+00:03:27.065 --> 00:03:31.185
+<v Travis Morgan>Like what you described to me sounds like
+how we we would want it to behave.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/466-0
+00:03:32.065 --> 00:03:35.025
+<v Travis Morgan>So I need to touch base with him on that
+one.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/476-0
+00:03:35.225 --> 00:03:39.905
+<v Seungweon Park>OK. And also the third you know challenge.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/487-0
+00:03:39.905 --> 00:03:44.185
+<v Seungweon Park>Is that somehow when we run the other
+commander using the git?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/496-0
+00:03:44.905 --> 00:03:46.985
+<v Seungweon Park>I mean the V rack Control instance
+command.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/523-0
+00:03:47.505 --> 00:03:50.981
+<v Seungweon Park>So there,
+we'd like to know the what is the the</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/523-1
+00:03:50.981 --> 00:03:56.628
+<v Seungweon Park>behavior of the streaming standard hour
+standard error or something like that</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/523-2
+00:03:56.628 --> 00:03:58.945
+<v Seungweon Park>because it doesn't populate the.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/529-0
+00:03:59.585 --> 00:04:02.745
+<v Seungweon Park>I mean, there will be another topic,
+but you know when?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/533-0
+00:04:03.475 --> 00:04:04.675
+<v Seungweon Park>They run the that command.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/568-0
+00:04:05.545 --> 00:04:10.216
+<v Seungweon Park>I would expect they should give the some
+you know error code correctly,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/568-1
+00:04:10.216 --> 00:04:15.470
+<v Seungweon Park>or sometimes if it is the warning or if
+it I mean not warning if it is the error</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/568-2
+00:04:15.470 --> 00:04:17.545
+<v Seungweon Park>or if it is the standard output.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/585-0
+00:04:18.185 --> 00:04:25.661
+<v Seungweon Park>Somehow we didn't get the final result
+and then sometimes they dropping the one</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/585-1
+00:04:25.661 --> 00:04:29.305
+<v Seungweon Park>of the stream so that we don't see the.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/596-0
+00:04:30.195 --> 00:04:34.555
+<v Seungweon Park>That certain you know output from the
+commander. We are running with.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/616-0
+00:04:34.905 --> 00:04:40.833
+<v Seungweon Park>It so that will be the another challenge
+and also I mean as you know it doesn't</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/616-1
+00:04:40.833 --> 00:04:43.945
+<v Seungweon Park>support the other real time of the output.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/633-0
+00:04:43.985 --> 00:04:48.676
+<v Seungweon Park>So which will be a little bit challenging
+in terms of implementation as well as I</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/633-1
+00:04:48.676 --> 00:04:49.705
+<v Seungweon Park>experience before.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/648-0
+00:04:49.705 --> 00:04:55.083
+<v Seungweon Park>So you'll be really nice to have a little
+improvement in the actual, you know,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/648-1
+00:04:55.083 --> 00:04:56.785
+<v Seungweon Park>streaming of the command.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/649-0
+00:04:55.935 --> 00:04:56.535
+<v Travis Morgan>Is this?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/674-0
+00:04:58.425 --> 00:05:02.977
+<v Travis Morgan>Is this really coming up when? OK,
+so let me repeat back what I heard.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/674-1
+00:05:02.977 --> 00:05:07.465
+<v Travis Morgan>So the text streaming coming out of the
+command line interface is is.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/675-0
+00:05:06.485 --> 00:05:08.325
+<v Seungweon Park>Right pichu.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/677-0
+00:05:09.345 --> 00:05:09.785
+<v Travis Morgan>Sorry.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/704-0
+00:05:10.505 --> 00:05:13.744
+<v Seungweon Park>Oh yeah,
+the command line which we feed inside of</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/704-1
+00:05:13.744 --> 00:05:17.241
+<v Seungweon Park>the command,
+like using running the SM command inside</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/704-2
+00:05:17.241 --> 00:05:18.665
+<v Seungweon Park>of the Gateway or LRU.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/705-0
+00:05:18.895 --> 00:05:19.135
+<v Travis Morgan>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/707-0
+00:05:19.105 --> 00:05:20.105
+<v Seungweon Park>So in that case.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/726-0
+00:05:20.625 --> 00:05:24.249
+<v Travis Morgan>When when you are connected to the
+command line to the gateway or whatever,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/726-1
+00:05:24.249 --> 00:05:27.301
+<v Travis Morgan>and you're running a command,
+the standard out streaming is not</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/726-2
+00:05:27.301 --> 00:05:27.825
+<v Travis Morgan>consistent.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/729-0
+00:05:28.375 --> 00:05:28.855
+<v Seungweon Park>Right.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/732-0
+00:05:29.175 --> 00:05:29.695
+<v Travis Morgan>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/754-0
+00:05:29.775 --> 00:05:33.290
+<v Travis Morgan>And that's mainly a concern when you are
+is that a concern,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/754-1
+00:05:33.290 --> 00:05:36.922
+<v Travis Morgan>no matter what you're doing?
+Or is this mainly like when your</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/754-2
+00:05:36.922 --> 00:05:40.495
+<v Travis Morgan>pipeline's executing and you can't tell
+what's happening or?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/778-0
+00:05:41.595 --> 00:05:45.614
+<v Seungweon Park>Even when I run through the command line
+from the my terminal,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/764-0
+00:05:44.855 --> 00:05:44.975
+<v Travis Morgan>Huh.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/778-1
+00:05:45.614 --> 00:05:48.995
+<v Seungweon Park>you know so that they can, you know,
+communicate it.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/770-0
+00:05:46.255 --> 00:05:46.335
+<v Travis Morgan>Uh.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/817-0
+00:05:48.995 --> 00:05:53.956
+<v Seungweon Park>So even I face the other kind of a issue
+even in the, you know,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/787-0
+00:05:52.045 --> 00:05:52.445
+<v Travis Morgan>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/817-1
+00:05:53.956 --> 00:05:58.607
+<v Seungweon Park>the pipeline is the Oper,
+because somehow this via control,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/817-2
+00:05:58.607 --> 00:06:03.412
+<v Seungweon Park>you know what is the other OD for to
+shell they are using it.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/817-3
+00:06:03.412 --> 00:06:07.675
+<v Seungweon Park>Is that just a regular shell or bash,
+org whatever it.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/819-0
+00:06:07.675 --> 00:06:07.795
+<v Seungweon Park>Is.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/830-0
+00:06:08.555 --> 00:06:11.155
+<v Seungweon Park>So that you will be really nice.
+They can populate the all those</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/830-1
+00:06:11.155 --> 00:06:11.675
+<v Seungweon Park>environments.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/844-0
+00:06:12.225 --> 00:06:16.105
+<v Seungweon Park>Variables so that way we don't need to
+feed it lengthy.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/851-0
+00:06:16.145 --> 00:06:19.025
+<v Seungweon Park>One line of a commander,
+like a export or something.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/885-0
+00:06:19.025 --> 00:06:25.638
+<v Seungweon Park>Environment export something environment
+and then finally we are running the final</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/885-1
+00:06:25.638 --> 00:06:31.613
+<v Seungweon Park>you know command line which is really
+lengthy even we can chop as the back</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/885-2
+00:06:31.613 --> 00:06:37.588
+<v Seungweon Park>slash but the in the pipeline they only
+show the first line so that is the</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/885-3
+00:06:37.588 --> 00:06:38.225
+<v Seungweon Park>another.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/892-0
+00:06:38.875 --> 00:06:41.035
+<v Seungweon Park>Some hard to debug the SM issues.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/896-0
+00:06:41.425 --> 00:06:41.945
+<v Travis Morgan>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/900-0
+00:06:41.945 --> 00:06:43.705
+<v Travis Morgan>I hear what you're saying.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/920-0
+00:06:43.705 --> 00:06:49.040
+<v Travis Morgan>Let me let me let me see what we can do
+about that one and I can also ask the</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/920-1
+00:06:49.040 --> 00:06:52.665
+<v Travis Morgan>test automation team here if they've had
+that issue.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/939-0
+00:06:54.865 --> 00:06:57.195
+<v Travis Morgan>And if so,
+if there was anything they they were able</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/939-1
+00:06:57.195 --> 00:06:58.865
+<v Travis Morgan>to do kind of to get to get around it.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/940-0
+00:06:59.455 --> 00:07:00.375
+<v Seungweon Park>I see. OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/949-0
+00:07:01.995 --> 00:07:04.755
+<v Seungweon Park>And and also another thing is that the.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/955-0
+00:07:07.675 --> 00:07:08.835
+<v Seungweon Park>Actually, what was that?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/978-0
+00:07:08.915 --> 00:07:12.944
+<v Seungweon Park>Oh,
+so when we use the set plus E or set</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/978-1
+00:07:12.944 --> 00:07:17.464
+<v Seungweon Park>minus E,
+you know before executing the actual</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/978-2
+00:07:17.464 --> 00:07:22.475
+<v Seungweon Park>command,
+I don't know the the actual do behaviors.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/980-0
+00:07:22.515 --> 00:07:24.035
+<v Seungweon Park>You know about that kind of?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1016-0
+00:07:27.685 --> 00:07:31.123
+<v Seungweon Park>Environment so that will be the another
+ask,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1016-1
+00:07:31.123 --> 00:07:37.387
+<v Seungweon Park>but that is there's something you know,
+I just the move everything into the shell</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1016-2
+00:07:37.387 --> 00:07:41.818
+<v Seungweon Park>right now so that that's not the big
+issue right now. OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1005-0
+00:07:40.005 --> 00:07:40.245
+<v Travis Morgan>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1016-3
+00:07:41.818 --> 00:07:47.165
+<v Seungweon Park>And then next one is the you know the
+first one actually we create I.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1031-0
+00:07:47.155 --> 00:07:52.805
+<v Seungweon Park>I noticed that that there is a AHA ticket
+for that, but that is the snapshot.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1036-0
+00:07:53.595 --> 00:07:54.395
+<v Seungweon Park>I would say so.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1043-0
+00:07:54.395 --> 00:07:57.903
+<v Seungweon Park>Similar to that, but you really,
+really nice to have this kind of a</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1043-1
+00:07:57.903 --> 00:07:58.315
+<v Seungweon Park>comment.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1055-0
+00:07:58.745 --> 00:08:02.185
+<v Seungweon Park>Like instance clone from the V rang
+number.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1065-0
+00:08:02.265 --> 00:08:07.115
+<v Seungweon Park>I mean the template name because once we
+create the the V rack which we are</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1065-1
+00:08:07.115 --> 00:08:07.625
+<v Seungweon Park>working.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1075-0
+00:08:09.075 --> 00:08:13.715
+<v Seungweon Park>With a gateway and then you know the LRU.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1095-0
+00:08:13.755 --> 00:08:18.031
+<v Seungweon Park>Then instead of,
+you know creating the V rack all the time,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1095-1
+00:08:18.031 --> 00:08:22.235
+<v Seungweon Park>we just have a final or some golden
+version of the V rack.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1109-0
+00:08:22.235 --> 00:08:27.274
+<v Seungweon Park>And then we can just span off and then
+there will be the, you know, safer.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1109-1
+00:08:27.274 --> 00:08:29.155
+<v Seungweon Park>And we're so faster when we.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1113-0
+00:08:29.505 --> 00:08:31.025
+<v Seungweon Park>Creating the new vrack.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1135-0
+00:08:33.195 --> 00:08:37.984
+<v Seungweon Park>So I'm hoping that they can, you know,
+implemented this one with a higher</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1135-1
+00:08:37.984 --> 00:08:41.155
+<v Seungweon Park>priority in the next quarter.
+There will be the.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1141-0
+00:08:43.275 --> 00:08:44.795
+<v Seungweon Park>My you know, thumbs up.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1149-0
+00:08:44.355 --> 00:08:49.555
+<v Travis Morgan>Well, yeah.
+I I I see how to say this like I think.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1159-0
+00:08:51.025 --> 00:08:54.958
+<v Travis Morgan>What you're asking for here is you've
+explained it clearly and and the value of</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1159-1
+00:08:54.958 --> 00:08:55.105
+<v Travis Morgan>it.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1177-0
+00:08:56.825 --> 00:09:02.025
+<v Travis Morgan>We we have the multi orbit team has asked
+for something very similar to to this.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1214-0
+00:09:02.025 --> 00:09:07.145
+<v Travis Morgan>This is their main like ask now is is.
+Is there a way that we can make it so</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1214-1
+00:09:07.145 --> 00:09:12.464
+<v Travis Morgan>that we can get these spun up quicker and
+then the last meeting that I had with</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1194-0
+00:09:09.165 --> 00:09:09.725
+<v Seungweon Park>Yeah.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1214-2
+00:09:12.464 --> 00:09:15.456
+<v Travis Morgan>Chris.
+He also said he thought that this was</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1214-3
+00:09:15.456 --> 00:09:16.985
+<v Travis Morgan>should be our our next.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1217-0
+00:09:17.905 --> 00:09:18.505
+<v Travis Morgan>Big priority.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1222-0
+00:09:18.855 --> 00:09:20.015
+<v Travis Morgan>For the for the product.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1221-0
+00:09:19.355 --> 00:09:19.715
+<v Seungweon Park>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1225-0
+00:09:21.355 --> 00:09:21.475
+<v Seungweon Park>Yep.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1244-0
+00:09:21.545 --> 00:09:27.573
+<v Travis Morgan>So it's definitely like like it's it's
+been on the road map for a long time and</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1244-1
+00:09:27.573 --> 00:09:28.025
+<v Travis Morgan>it is.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1252-0
+00:09:28.545 --> 00:09:31.985
+<v Travis Morgan>I think it's moving up to the to the top
+of the request list.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1255-0
+00:09:32.625 --> 00:09:33.185
+<v Seungweon Park>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1283-0
+00:09:33.705 --> 00:09:39.313
+<v Seungweon Park>So hoping that you can just put this and
+then it's so stress on the next π</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1283-1
+00:09:39.313 --> 00:09:41.705
+<v Seungweon Park>planning for this there will be.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1278-0
+00:09:40.055 --> 00:09:42.745
+<v Travis Morgan>Yeah, I'll do my best.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1312-0
+00:09:42.745 --> 00:09:46.849
+<v Travis Morgan>I I go in the Pi planning and I I always
+think it's going to be this thing that we</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1312-1
+00:09:46.849 --> 00:09:50.904
+<v Travis Morgan>we get prioritized and at the last minute
+like somehow it's not so but but I will</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1299-0
+00:09:47.515 --> 00:09:47.835
+<v Seungweon Park>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1303-0
+00:09:49.395 --> 00:09:49.555
+<v Seungweon Park>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1312-2
+00:09:50.904 --> 00:09:52.535
+<v Travis Morgan>definitely advocate for this one.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1335-0
+00:09:52.535 --> 00:09:58.114
+<v Travis Morgan>I I think it is something we need and
+then I you know I I had sent out a a</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1319-0
+00:09:53.915 --> 00:09:54.395
+<v Seungweon Park>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1335-1
+00:09:58.114 --> 00:10:01.535
+<v Travis Morgan>survey to to the engineering managers
+asking.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1343-0
+00:10:02.985 --> 00:10:04.225
+<v Travis Morgan>Hey, what what?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1346-0
+00:10:04.535 --> 00:10:05.815
+<v Travis Morgan>How are you finding your experience?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1359-0
+00:10:05.815 --> 00:10:09.243
+<v Travis Morgan>What do you think we should work on next
+for this product?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1359-1
+00:10:09.243 --> 00:10:12.495
+<v Travis Morgan>And Aparna was one of the people that I
+reached out to.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1388-0
+00:10:12.495 --> 00:10:16.853
+<v Travis Morgan>So she can probably just take this and
+put that in the survey and then that will</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1388-1
+00:10:16.853 --> 00:10:21.156
+<v Travis Morgan>get put into the report that I'm giving
+to upper management about where we want</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1388-2
+00:10:21.156 --> 00:10:23.415
+<v Travis Morgan>to take this product with the road map is.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1395-0
+00:10:25.465 --> 00:10:27.225
+<v Travis Morgan>This is very timely, very timely.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1397-0
+00:10:26.055 --> 00:10:26.695
+<v Seungweon Park>All right.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1402-0
+00:10:27.175 --> 00:10:28.455
+<v Seungweon Park>Yeah. Yeah. OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1400-0
+00:10:27.225 --> 00:10:27.745
+<v Travis Morgan>Thank you.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1439-0
+00:10:28.495 --> 00:10:33.047
+<v Seungweon Park>Yeah. And also, I don't know,
+actually David Kayan,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1439-1
+00:10:33.047 --> 00:10:39.962
+<v Seungweon Park>when people he left the other vacation
+and then he sent out some reply so that</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1424-0
+00:10:37.545 --> 00:10:37.745
+<v Travis Morgan>Mm hmm.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1439-2
+00:10:39.962 --> 00:10:43.375
+<v Seungweon Park>he I added his response here but can't.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1444-0
+00:10:43.495 --> 00:10:44.415
+<v Seungweon Park>I don't know.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1468-0
+00:10:44.415 --> 00:10:51.440
+<v Seungweon Park>He mentioned that there is a SVU bot so
+that no matter is a secret shell or SP or</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1468-1
+00:10:51.440 --> 00:10:53.495
+<v Seungweon Park>some pack, you know SSS.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1473-0
+00:10:53.935 --> 00:10:55.295
+<v Seungweon Park>Ages have been running.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1490-0
+00:10:55.295 --> 00:10:59.286
+<v Seungweon Park>I don't know that you're gonna cover the
+pack SSH either,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1490-1
+00:10:59.286 --> 00:11:02.175
+<v Seungweon Park>but can you explain about the disk SV bot?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1497-0
+00:11:02.115 --> 00:11:02.715
+<v Travis Morgan>Yeah, I'm not.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1511-0
+00:11:02.715 --> 00:11:06.298
+<v Travis Morgan>I'm not familiar with this,
+but he'll be back on Tuesday so he can</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1511-1
+00:11:06.298 --> 00:11:07.955
+<v Travis Morgan>give you more information then.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1508-0
+00:11:06.325 --> 00:11:06.805
+<v Seungweon Park>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1517-0
+00:11:08.495 --> 00:11:09.895
+<v Seungweon Park>Yeah. OK. Gotcha.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1541-0
+00:11:10.295 --> 00:11:15.978
+<v Seungweon Park>I texted in here and then see if he can
+have a one-on-one sync with me about the</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1528-0
+00:11:14.055 --> 00:11:14.535
+<v Travis Morgan>Yeah.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1541-1
+00:11:15.978 --> 00:11:19.415
+<v Seungweon Park>my pipeline is has a some flaws or
+something so.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1537-0
+00:11:18.085 --> 00:11:18.405
+<v Travis Morgan>It.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1567-0
+00:11:19.555 --> 00:11:22.656
+<v Travis Morgan>Well,
+definitely the the the YAML files that</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1567-1
+00:11:22.656 --> 00:11:26.446
+<v Travis Morgan>you're generating.
+If you can give us copies of those,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1567-2
+00:11:26.446 --> 00:11:31.475
+<v Travis Morgan>I'd like to see if we can recreate the
+problem and analyze them because.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1561-0
+00:11:27.995 --> 00:11:28.395
+<v Seungweon Park>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1576-0
+00:11:32.985 --> 00:11:34.745
+<v Travis Morgan>It it could be a bug with the product.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1610-0
+00:11:34.745 --> 00:11:37.522
+<v Travis Morgan>Sometimes it's not with the virtual rack
+product,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1610-1
+00:11:37.522 --> 00:11:42.243
+<v Travis Morgan>but with our LMS system and we have to go
+talk to the loading team and be like, hey,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1610-2
+00:11:42.243 --> 00:11:46.408
+<v Travis Morgan>this is a way that people are loading
+stuff on racks now, can you help us,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1610-3
+00:11:46.408 --> 00:11:48.185
+<v Travis Morgan>you know, fix this and and then?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1613-0
+00:11:48.185 --> 00:11:48.825
+<v Travis Morgan>Sometimes it's just like.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1626-0
+00:11:50.415 --> 00:11:54.039
+<v Travis Morgan>Like like there's something missing from
+the file and you put in there and</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1626-1
+00:11:54.039 --> 00:11:55.295
+<v Travis Morgan>suddenly everything works.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1644-0
+00:11:55.295 --> 00:11:58.639
+<v Travis Morgan>So like if you can send those to us,
+we'll we'll do a deep dive into the files</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1643-0
+00:11:58.285 --> 00:11:58.805
+<v Seungweon Park>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1644-1
+00:11:58.639 --> 00:11:59.655
+<v Travis Morgan>and try to reproduce it.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1656-0
+00:11:59.165 --> 00:12:03.525
+<v Seungweon Park>Yeah, yeah, already.
+I talked to the Eric Sulli about this</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1656-1
+00:12:03.525 --> 00:12:04.485
+<v Seungweon Park>issue before.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1687-0
+00:12:04.485 --> 00:12:09.443
+<v Seungweon Park>But what he's saying is that LMS will,
+you know, automatically, you know,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1658-0
+00:12:05.185 --> 00:12:05.385
+<v Travis Morgan>Mm hmm.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1687-1
+00:12:09.443 --> 00:12:14.870
+<v Seungweon Park>they gonna load all those component or
+whatever is in the you know the component</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1687-2
+00:12:14.870 --> 00:12:15.205
+<v Seungweon Park>list.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1692-0
+00:12:15.205 --> 00:12:18.765
+<v Seungweon Park>But I noticed that recently, not recently.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1711-0
+00:12:18.765 --> 00:12:23.525
+<v Seungweon Park>I don't know when they changed the those
+Yammer file format so that we used to use</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1711-1
+00:12:23.525 --> 00:12:25.245
+<v Seungweon Park>the Yammer file for the V RAG.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1715-0
+00:12:26.105 --> 00:12:27.505
+<v Seungweon Park>You know deployment.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1728-0
+00:12:27.935 --> 00:12:31.455
+<v Seungweon Park>Including the those kit SSR kit or
+something.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1735-0
+00:12:31.495 --> 00:12:36.135
+<v Seungweon Park>But somehow they unite here as a single
+fire pitch.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1797-0
+00:12:36.205 --> 00:12:41.491
+<v Seungweon Park>Include all those component so that we
+don't use the adjacent file in the latest</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1797-1
+00:12:41.491 --> 00:12:44.361
+<v Seungweon Park>one,
+but they have a backward compatibility</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1797-2
+00:12:44.361 --> 00:12:45.405
+<v Seungweon Park>for now so that.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1811-0
+00:12:46.245 --> 00:12:50.399
+<v Seungweon Park>I was curious, you know,
+because of the latest change 'cause that</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1811-1
+00:12:50.399 --> 00:12:51.405
+<v Seungweon Park>kind of problem.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1813-0
+00:12:51.685 --> 00:12:53.445
+<v Seungweon Park>But I have no clue.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1821-0
+00:12:54.375 --> 00:12:56.820
+<v Travis Morgan>OK,
+well since the files it won't help you</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1821-1
+00:12:56.820 --> 00:12:57.615
+<v Travis Morgan>figure it out.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1824-0
+00:12:57.055 --> 00:12:58.415
+<v Seungweon Park>Yeah. OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1830-0
+00:12:57.655 --> 00:12:59.775
+<v Travis Morgan>So David will be back on Tuesday.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1833-0
+00:13:00.085 --> 00:13:00.565
+<v Seungweon Park>I will, OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1835-0
+00:13:00.565 --> 00:13:02.005
+<v Seungweon Park>I will forward that information.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1837-0
+00:13:03.685 --> 00:13:04.005
+<v Seungweon Park>What else?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1845-0
+00:13:05.645 --> 00:13:06.765
+<v Seungweon Park>I think that's all about it.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1850-0
+00:13:06.885 --> 00:13:09.725
+<v Seungweon Park>Anyone has any issue while you are using
+it?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1860-0
+00:13:13.985 --> 00:13:15.625
+<v Travis Morgan>Sorry, was was that a question for me?</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1857-0
+00:13:14.345 --> 00:13:14.745
+<v Seungweon Park>OK. Yes.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1862-0
+00:13:16.155 --> 00:13:17.915
+<v Seungweon Park>No, no, no. The our team.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1873-0
+00:13:19.455 --> 00:13:22.775
+<v Edward King>Now you're the power user and you've
+captured.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1880-0
+00:13:25.095 --> 00:13:27.375
+<v Sushma Gudimalla>Yeah, even the same issues with me.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1894-0
+00:13:31.995 --> 00:13:36.900
+<v Seungweon Park>Maybe my pipeline is something wrong,
+so in the case you know they might cause</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1894-1
+00:13:36.900 --> 00:13:37.955
+<v Seungweon Park>the problems too.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1916-0
+00:13:37.955 --> 00:13:43.909
+<v Seungweon Park>So that I don't guarantee my pipeline is
+100% guarantee making working.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1916-1
+00:13:43.909 --> 00:13:50.275
+<v Seungweon Park>So maybe I can discuss more with you know
+David. Then once he comes back so.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1920-0
+00:13:51.385 --> 00:13:52.545
+<v Travis Morgan>We'll get to the bottom of it.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1922-0
+00:13:53.085 --> 00:13:53.485
+<v Seungweon Park>OK.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1938-0
+00:13:53.525 --> 00:13:57.951
+<v Seungweon Park>All right, I will for the, you know,
+Yammer 5, you know, after this meeting,</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1941-0
+00:13:56.275 --> 00:13:58.235
+<v Travis Morgan>Thank you so much. Appreciate it. Alright.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1938-1
+00:13:57.951 --> 00:13:58.525
+<v Seungweon Park>all right.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1942-0
+00:13:58.525 --> 00:13:59.605
+<v Seungweon Park>Thank you so much.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1951-0
+00:13:59.605 --> 00:14:00.925
+<v Seungweon Park>Have a great weekend.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1952-0
+00:13:59.905 --> 00:14:00.745
+<v Travis Morgan>Have a wonderful weekend.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1956-0
+00:14:00.745 --> 00:14:01.745
+<v Travis Morgan>Yeah. Thank you.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1954-0
+00:14:01.155 --> 00:14:01.515
+<v Sushma Gudimalla>Thank you.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1957-0
+00:14:01.205 --> 00:14:02.085
+<v Seungweon Park>Yep, bye.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1964-0
+00:14:01.745 --> 00:14:03.065
+<v Travis Morgan>Bye. Thank you.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1961-0
+00:14:02.895 --> 00:14:02.935
+<v Edward King>I.</v>
+
+1c97f8d8-4a68-4dd0-ad98-73bd2466207f/1966-0
+00:14:04.085 --> 00:14:04.765
+<v Seungweon Park>Bye guys.</v>

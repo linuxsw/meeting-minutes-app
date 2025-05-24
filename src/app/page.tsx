@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { FileUploader } from '@/components/file-uploader'
 import { TemplateSelector } from '@/components/template-selector'
-import { useRouter } from 'next/navigation'
 import { getAvailableAIProviders } from '@/lib/ai-transcript-processor'
-import { sampleTranscript, processUploadedFile } from '@/lib/test-data'
+import { parseTranscript } from '@/lib/transcript-processor'
 
 export default function Home() {
   const [selectedTemplate, setSelectedTemplate] = useState('')
@@ -18,6 +18,7 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [aiProviders, setAiProviders] = useState<any[]>([])
   const [selectedAiProvider, setSelectedAiProvider] = useState('none')
+  const [activeTab, setActiveTab] = useState('video')
   const router = useRouter()
 
   useEffect(() => {
@@ -29,6 +30,47 @@ export default function Home() {
     const storedProviderId = localStorage.getItem('selected_ai_provider');
     if (storedProviderId) {
       setSelectedAiProvider(storedProviderId);
+    }
+    
+    // Check if we're returning from processing page and have stored data
+    const storedTemplate = sessionStorage.getItem('testTemplateId');
+    const storedOutputFormat = sessionStorage.getItem('testOutputFormat');
+    const storedActiveTab = sessionStorage.getItem('activeTab');
+    const storedTranscriptFile = sessionStorage.getItem('uploadedTranscriptFile');
+    const storedTranscriptFileName = sessionStorage.getItem('uploadedTranscriptFileName');
+    const storedTranscriptFileType = sessionStorage.getItem('uploadedTranscriptFileType');
+    const storedTranscriptFileSize = sessionStorage.getItem('uploadedTranscriptFileSize');
+    
+    // Restore template selection if available
+    if (storedTemplate) {
+      setSelectedTemplate(storedTemplate);
+    }
+    
+    // Restore output format if available
+    if (storedOutputFormat) {
+      setOutputFormat(storedOutputFormat);
+    }
+    
+    // Restore active tab if available
+    if (storedActiveTab) {
+      setActiveTab(storedActiveTab);
+    }
+    
+    // Restore transcript file if available
+    if (storedTranscriptFile && storedTranscriptFileName && storedTranscriptFileType && storedTranscriptFileSize) {
+      try {
+        // Create a new File object from the stored data
+        const fileSize = parseInt(storedTranscriptFileSize, 10);
+        const fileContent = new Blob([storedTranscriptFile], { type: storedTranscriptFileType });
+        const file = new File([fileContent], storedTranscriptFileName, { 
+          type: storedTranscriptFileType,
+          lastModified: new Date().getTime()
+        });
+        
+        setUploadedTranscript(file);
+      } catch (error) {
+        console.error('Error restoring transcript file:', error);
+      }
     }
   }, []);
 
@@ -42,6 +84,27 @@ export default function Home() {
 
   const handleTranscriptUpload = (file: File | null) => {
     setUploadedTranscript(file)
+    
+    // Store the uploaded transcript file in sessionStorage for persistence
+    if (file) {
+      // Read the file content and store it
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target && e.target.result) {
+          sessionStorage.setItem('uploadedTranscriptFile', e.target.result as string);
+          sessionStorage.setItem('uploadedTranscriptFileName', file.name);
+          sessionStorage.setItem('uploadedTranscriptFileType', file.type);
+          sessionStorage.setItem('uploadedTranscriptFileSize', file.size.toString());
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      // Clear stored file if removed
+      sessionStorage.removeItem('uploadedTranscriptFile');
+      sessionStorage.removeItem('uploadedTranscriptFileName');
+      sessionStorage.removeItem('uploadedTranscriptFileType');
+      sessionStorage.removeItem('uploadedTranscriptFileSize');
+    }
   }
 
   const handleGenerateClick = async () => {
@@ -53,15 +116,22 @@ export default function Home() {
     setIsProcessing(true);
 
     try {
-      // In a real application, we would upload the files to the server
-      // For now, we'll simulate processing with the sample data
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Process the actual uploaded transcript file
+      if (uploadedTranscript) {
+        const transcriptContent = await uploadedTranscript.text();
+        
+        // Parse the transcript content based on file type and name
+        const processedTranscript = await parseTranscript(transcriptContent, uploadedTranscript.name);
+        
+        // Store the processed transcript in sessionStorage
+        sessionStorage.setItem('testTranscript', JSON.stringify(processedTranscript));
+      }
       
-      // Store the necessary data in sessionStorage for the next page
-      sessionStorage.setItem('testTranscript', JSON.stringify(sampleTranscript));
+      // Store template and output format
       sessionStorage.setItem('testTemplateId', selectedTemplate);
       sessionStorage.setItem('testOutputFormat', outputFormat);
       sessionStorage.setItem('selectedAiProvider', selectedAiProvider);
+      sessionStorage.setItem('activeTab', activeTab);
       
       // Navigate to the processing page
       router.push('/processing');
@@ -81,7 +151,7 @@ export default function Home() {
         <div className="md:col-span-1">
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Select Template</h2>
-            <TemplateSelector onSelect={handleTemplateSelect} />
+            <TemplateSelector onSelect={handleTemplateSelect} selectedTemplate={selectedTemplate} />
           </Card>
           
           <Card className="p-6 mt-6">
@@ -146,7 +216,7 @@ export default function Home() {
         <div className="md:col-span-2">
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Upload Files</h2>
-            <Tabs defaultValue="video" className="w-full">
+            <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="video">Video + Transcript</TabsTrigger>
                 <TabsTrigger value="video-only">Video Only</TabsTrigger>
@@ -166,7 +236,7 @@ export default function Home() {
                   <div>
                     <h3 className="text-md font-medium mb-2">Upload Transcript (Optional)</h3>
                     <FileUploader 
-                      accept=".txt,.vtt,.srt" 
+                      accept=".txt,.vtt,.srt,.doc,.docx" 
                       onFileUpload={handleTranscriptUpload} 
                       label="Drag & drop your transcript file or click to browse" 
                     />
@@ -192,9 +262,10 @@ export default function Home() {
                 <div>
                   <h3 className="text-md font-medium mb-2">Upload Transcript</h3>
                   <FileUploader 
-                    accept=".txt,.vtt,.srt" 
+                    accept=".txt,.vtt,.srt,.doc,.docx" 
                     onFileUpload={handleTranscriptUpload} 
-                    label="Drag & drop your transcript file or click to browse" 
+                    label="Drag & drop your transcript file or click to browse"
+                    initialFile={uploadedTranscript}
                   />
                 </div>
               </TabsContent>

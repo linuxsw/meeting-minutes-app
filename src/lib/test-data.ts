@@ -100,87 +100,29 @@ function parseTimestamp(timestamp: string): number {
   return seconds;
 }
 
-// Sample transcript data for testing
-export const sampleTranscript: ProcessedTranscript = {
-  speakers: [
-    { id: 'speaker_0', name: 'Sushma Gudimalla' },
-    { id: 'speaker_1', name: 'pdx' }
-  ],
-  segments: [
-    {
-      id: '0',
-      startTime: 338.102,
-      endTime: 338.902,
-      speakerId: 'speaker_0',
-      text: 'Sing one.'
-    },
-    {
-      id: '1',
-      startTime: 342.682,
-      endTime: 345.522,
-      speakerId: 'speaker_0',
-      text: 'Not able to hear anything, are you?'
-    },
-    {
-      id: '2',
-      startTime: 346.082,
-      endTime: 347.762,
-      speakerId: 'speaker_0',
-      text: 'Did you start meeting or?'
-    },
-    {
-      id: '3',
-      startTime: 356.582,
-      endTime: 357.742,
-      speakerId: 'speaker_1',
-      text: 'Restart again.'
-    },
-    {
-      id: '4',
-      startTime: 357.892,
-      endTime: 358.852,
-      speakerId: 'speaker_0',
-      text: 'Yes, OK.'
-    },
-    {
-      id: '5',
-      startTime: 358.932,
-      endTime: 359.532,
-      speakerId: 'speaker_0',
-      text: 'Thank you.'
-    },
-    {
-      id: '6',
-      startTime: 361.462,
-      endTime: 368.582,
-      speakerId: 'speaker_1',
-      text: "Sorry, I'm actually automatically the PDX is muted, so maybe I can start over again."
-    },
-    {
-      id: '7',
-      startTime: 369.342,
-      endTime: 369.822,
-      speakerId: 'speaker_0',
-      text: 'OK.'
-    },
-    {
-      id: '8',
-      startTime: 369.822,
-      endTime: 370.942,
-      speakerId: 'speaker_0',
-      text: 'Thank you so much.'
-    }
-  ],
-  duration: 370.942
-};
-
 // Function to simulate processing an uploaded file
 export async function processUploadedFile(file: File): Promise<ProcessedTranscript> {
-  // In a real application, we would process the file here
-  // For now, we'll just return the sample transcript
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(sampleTranscript);
-    }, 1500);
+  // Read the actual file content instead of returning sample data
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        // Parse the actual file content
+        const transcript = parseVTT(content);
+        resolve(transcript);
+      } catch (error) {
+        console.error('Error parsing transcript:', error);
+        reject(error);
+      }
+    };
+    
+    reader.onerror = (error) => {
+      console.error('Error reading file:', error);
+      reject(error);
+    };
+    
+    reader.readAsText(file);
   });
 }
