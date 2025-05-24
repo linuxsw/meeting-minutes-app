@@ -22,11 +22,22 @@
 ### Required Dependencies
 The application requires the following key dependencies:
 - Next.js 15.1.4
-- React 18.2.0
+- React 19.0.0
 - TypeScript 5.3.3
-- Tailwind CSS 3.3.0
-- React Beautiful DnD 13.1.1
-- React Dropzone 14.2.3
+- Tailwind CSS 3.4.1
+- React Beautiful DnD 13.1.1 (critical for speaker merging functionality)
+- React Dropzone 14.3.8
+
+### Installation Steps
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. If you encounter any build errors related to missing dependencies, specifically run:
+   ```bash
+   npm install react-beautiful-dnd @types/react-beautiful-dnd --legacy-peer-deps
+   ```
 
 ### Development Tools
 - Git
@@ -74,6 +85,11 @@ If you encounter dependency conflicts:
 1. Delete the `node_modules` directory
 2. Delete the `package-lock.json` file
 3. Run: `npm install --legacy-peer-deps`
+
+### Missing react-beautiful-dnd Error
+If you see an error about missing react-beautiful-dnd:
+1. Run: `npm install react-beautiful-dnd @types/react-beautiful-dnd --legacy-peer-deps`
+2. Restart the development server
 
 ### Port Already in Use
 If port 3000 is already in use:
