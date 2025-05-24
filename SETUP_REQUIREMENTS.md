@@ -25,7 +25,7 @@ The application requires the following key dependencies:
 - React 19.0.0
 - TypeScript 5.3.3
 - Tailwind CSS 3.4.1
-- React Beautiful DnD 13.1.1 (critical for speaker merging functionality)
+- @hello-pangea/dnd 16.5.0 (for drag-and-drop functionality)
 - React Dropzone 14.3.8
 
 ### Installation Steps
@@ -36,7 +36,7 @@ The application requires the following key dependencies:
    ```
 3. If you encounter any build errors related to missing dependencies, specifically run:
    ```bash
-   npm install react-beautiful-dnd @types/react-beautiful-dnd --legacy-peer-deps
+   npm install @hello-pangea/dnd --legacy-peer-deps
    ```
 
 ### Development Tools
@@ -86,10 +86,11 @@ If you encounter dependency conflicts:
 2. Delete the `package-lock.json` file
 3. Run: `npm install --legacy-peer-deps`
 
-### Missing react-beautiful-dnd Error
-If you see an error about missing react-beautiful-dnd:
-1. Run: `npm install react-beautiful-dnd @types/react-beautiful-dnd --legacy-peer-deps`
-2. Restart the development server
+### Drag and Drop Functionality Issues
+If you encounter issues with the drag and drop functionality:
+1. Ensure @hello-pangea/dnd is installed: `npm install @hello-pangea/dnd --legacy-peer-deps`
+2. Note that we use @hello-pangea/dnd instead of react-beautiful-dnd as the latter is deprecated
+3. Restart the development server after installation
 
 ### Port Already in Use
 If port 3000 is already in use:
