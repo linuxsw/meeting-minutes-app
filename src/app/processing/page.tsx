@@ -32,74 +32,150 @@ export default function ProcessingPage() {
   const [error, setError] = useState<string | null>(null)
   
   useEffect(() => {
-    // Try to load transcript from session storage
-    const savedTranscript = sessionStorage.getItem('uploadedTranscript')
-    const savedFileName = sessionStorage.getItem('uploadedFileName')
+    // Try to load transcript from session storage - check both keys for compatibility
+    const savedTranscriptFile = sessionStorage.getItem('uploadedTranscriptFile')
+    const savedTranscript = sessionStorage.getItem('testTranscript')
+    const savedFileName = sessionStorage.getItem('uploadedTranscriptFileName')
+    
+    console.log('Checking for transcript in session storage...');
+    console.log('uploadedTranscriptFile exists:', !!savedTranscriptFile);
+    console.log('testTranscript exists:', !!savedTranscript);
     
     if (savedTranscript) {
       try {
         setLoading(true)
+        console.log('Found parsed transcript in session storage');
         
-        // Parse the transcript
-        parseTranscript(savedTranscript, savedFileName || undefined)
-          .then((result) => {
-            setTranscript(result)
-            
-            // Set meeting metadata if available
-            if (result.metadata) {
-              setMeetingTitle(result.metadata.title || '')
-              setMeetingDate(result.metadata.date || '')
-            } else {
-              // Default to today's date
-              setMeetingDate(new Date().toISOString().split('T')[0])
-            }
-            
-            // Group segments by speaker
-            const speakersMap = new Map<string, SpeakerWithSegments>()
-            
-            result.speakers.forEach((speaker) => {
-              speakersMap.set(speaker.id, {
-                id: speaker.id,
-                name: speaker.name,
-                segments: []
-              })
-            })
-            
-            result.segments.forEach((segment) => {
-              const speaker = speakersMap.get(segment.speakerId)
-              if (speaker) {
-                speaker.segments.push({
-                  id: segment.id,
-                  text: segment.text,
-                  startTime: segment.startTime,
-                  endTime: segment.endTime
-                })
-              }
-            })
-            
-            // Sort segments by start time for each speaker
-            speakersMap.forEach((speaker) => {
-              speaker.segments.sort((a, b) => a.startTime - b.startTime)
-            })
-            
-            setSpeakersWithSegments(Array.from(speakersMap.values()))
-            setLoading(false)
+        // If we have a parsed transcript in JSON format
+        const parsedTranscript = JSON.parse(savedTranscript)
+        console.log('Parsed transcript segments count:', parsedTranscript.segments?.length || 0);
+        setTranscript(parsedTranscript)
+        
+        // Set meeting metadata if available
+        if (parsedTranscript.metadata) {
+          setMeetingTitle(parsedTranscript.metadata.title || '')
+          setMeetingDate(parsedTranscript.metadata.date || '')
+        } else {
+          // Default to today's date
+          setMeetingDate(new Date().toISOString().split('T')[0])
+        }
+        
+        // Group segments by speaker
+        const speakersMap = new Map<string, SpeakerWithSegments>()
+        
+        parsedTranscript.speakers.forEach((speaker) => {
+          speakersMap.set(speaker.id, {
+            id: speaker.id,
+            name: speaker.name,
+            segments: []
           })
-          .catch((err) => {
-            console.error('Error parsing transcript:', err)
-            setError('Failed to parse transcript. Please try again.')
-            setLoading(false)
-          })
-      } catch (err) {
-        console.error('Error loading transcript:', err)
-        setError('Failed to load transcript. Please try again.')
+        })
+        
+        parsedTranscript.segments.forEach((segment) => {
+          const speaker = speakersMap.get(segment.speakerId)
+          if (speaker) {
+            speaker.segments.push({
+              id: segment.id,
+              text: segment.text,
+              startTime: segment.startTime,
+              endTime: segment.endTime
+            })
+          }
+        })
+        
+        // Sort segments by start time for each speaker
+        speakersMap.forEach((speaker) => {
+          speaker.segments.sort((a, b) => a.startTime - b.startTime)
+        })
+        
+        setSpeakersWithSegments(Array.from(speakersMap.values()))
         setLoading(false)
+      } catch (err) {
+        console.error('Error loading parsed transcript:', err)
+        // Fall back to raw transcript file if available
+        handleRawTranscriptFile(savedTranscriptFile, savedFileName)
       }
+    } else if (savedTranscriptFile) {
+      // If we only have the raw transcript file
+      console.log('No parsed transcript found, using raw transcript file');
+      handleRawTranscriptFile(savedTranscriptFile, savedFileName)
     } else {
+      console.error('No transcript found in session storage');
       setError('No transcript found. Please upload a transcript file first.')
       setLoading(false)
     }
   }, [])
+  
+  const handleRawTranscriptFile = (transcriptContent: string | null, fileName: string | null) => {
+    if (!transcriptContent) {
+      setError('No transcript content found. Please upload a transcript file first.')
+      setLoading(false)
+      return
+    }
+    
+    try {
+      console.log('Parsing raw transcript content with filename:', fileName);
+      // Parse the transcript
+      parseTranscript(transcriptContent, fileName || undefined)
+        .then((result) => {
+          console.log('Successfully parsed transcript');
+          console.log('Parsed transcript segments count:', result.segments?.length || 0);
+          setTranscript(result)
+          
+          // Store the parsed transcript for future use
+          sessionStorage.setItem('testTranscript', JSON.stringify(result))
+          
+          // Set meeting metadata if available
+          if (result.metadata) {
+            setMeetingTitle(result.metadata.title || '')
+            setMeetingDate(result.metadata.date || '')
+          } else {
+            // Default to today's date
+            setMeetingDate(new Date().toISOString().split('T')[0])
+          }
+          
+          // Group segments by speaker
+          const speakersMap = new Map<string, SpeakerWithSegments>()
+          
+          result.speakers.forEach((speaker) => {
+            speakersMap.set(speaker.id, {
+              id: speaker.id,
+              name: speaker.name,
+              segments: []
+            })
+          })
+          
+          result.segments.forEach((segment) => {
+            const speaker = speakersMap.get(segment.speakerId)
+            if (speaker) {
+              speaker.segments.push({
+                id: segment.id,
+                text: segment.text,
+                startTime: segment.startTime,
+                endTime: segment.endTime
+              })
+            }
+          })
+          
+          // Sort segments by start time for each speaker
+          speakersMap.forEach((speaker) => {
+            speaker.segments.sort((a, b) => a.startTime - b.startTime)
+          })
+          
+          setSpeakersWithSegments(Array.from(speakersMap.values()))
+          setLoading(false)
+        })
+        .catch((err) => {
+          console.error('Error parsing transcript:', err)
+          setError('Failed to parse transcript. Please try again.')
+          setLoading(false)
+        })
+    } catch (err) {
+      console.error('Error loading transcript:', err)
+      setError('Failed to load transcript. Please try again.')
+      setLoading(false)
+    }
+  }
   
   const handleSpeakerNameChange = (speakerId: string, newName: string) => {
     if (!transcript) return
@@ -159,6 +235,7 @@ export default function ProcessingPage() {
     
     // Store the updated transcript to preserve merged speakers
     sessionStorage.setItem('processedTranscript', JSON.stringify(updatedTranscript))
+    sessionStorage.setItem('testTranscript', JSON.stringify(updatedTranscript))
     
     // Update speakersWithSegments
     const sourceSpeakerWithSegments = speakersWithSegments.find((s) => s.id === sourceId)
@@ -213,6 +290,7 @@ export default function ProcessingPage() {
     }
     
     sessionStorage.setItem('processedTranscript', JSON.stringify(processedTranscript))
+    sessionStorage.setItem('testTranscript', JSON.stringify(processedTranscript))
     
     // Save speakers list for attendees
     const attendees = transcript.speakers.map((speaker) => speaker.name)
@@ -274,26 +352,33 @@ export default function ProcessingPage() {
       
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-2">Transcript Preview</h2>
-        <Card className="p-4 max-h-96 overflow-y-auto">
-          {transcript && transcript.segments.length > 0 ? (
-            transcript.segments.map((segment) => {
-              const speaker = transcript.speakers.find((s) => s.id === segment.speakerId)
-              return (
-                <div key={segment.id} className="mb-2">
-                  <span className="font-semibold">{speaker?.name || 'Unknown'}:</span>{' '}
-                  {segment.text}
-                </div>
-              )
-            })
+        <Card className="p-4 h-96 overflow-y-auto border-2 border-gray-200 bg-white">
+          {transcript && transcript.segments && transcript.segments.length > 0 ? (
+            <div className="space-y-3">
+              {transcript.segments.map((segment, index) => {
+                const speaker = transcript.speakers.find((s) => s.id === segment.speakerId);
+                return (
+                  <div key={segment.id || index} className="pb-2 border-b border-gray-100 last:border-0">
+                    <span className="font-semibold text-black">{speaker?.name || 'Unknown'}:</span>{' '}
+                    <span className="text-black">{segment.text}</span>
+                  </div>
+                );
+              })}
+            </div>
           ) : (
-            <div className="text-gray-500">No transcript content available.</div>
+            <div className="text-gray-500 h-full flex items-center justify-center">
+              No transcript content available.
+            </div>
           )}
         </Card>
+        <div className="mt-2 text-xs text-gray-500">
+          {transcript?.segments?.length || 0} segments in transcript
+        </div>
       </div>
       
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-2">Speakers</h2>
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-sm text-gray-700 mb-4">
           Edit speaker names or drag and drop to merge speakers.
         </p>
         
@@ -305,7 +390,7 @@ export default function ProcessingPage() {
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className="border rounded-md p-4 bg-white"
+                    className="border rounded-md p-4 bg-white shadow-sm"
                   >
                     <Draggable draggableId={speaker.id} index={0}>
                       {(provided) => (
@@ -316,8 +401,8 @@ export default function ProcessingPage() {
                           className="mb-2"
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <Label htmlFor={`speaker-${speaker.id}`}>Speaker Name</Label>
-                            <div className="text-xs text-gray-500">
+                            <Label htmlFor={`speaker-${speaker.id}`} className="text-black font-medium">Speaker Name</Label>
+                            <div className="text-xs text-gray-700">
                               {speaker.segments.length} segments
                             </div>
                           </div>
@@ -325,19 +410,19 @@ export default function ProcessingPage() {
                             id={`speaker-${speaker.id}`}
                             value={speaker.name}
                             onChange={(e) => handleSpeakerNameChange(speaker.id, e.target.value)}
-                            className="mb-2"
+                            className="mb-2 text-black bg-white border-gray-300"
                           />
-                          <div className="text-xs text-gray-500 mb-2">
+                          <div className="text-xs text-gray-700 mb-2 font-medium">
                             Drag to another speaker to merge
                           </div>
-                          <div className="max-h-32 overflow-y-auto text-sm text-gray-700">
+                          <div className="max-h-32 overflow-y-auto text-sm text-black bg-gray-50 p-2 rounded">
                             {speaker.segments.slice(0, 3).map((segment) => (
-                              <div key={segment.id} className="mb-1 truncate">
+                              <div key={segment.id} className="mb-1 truncate text-black">
                                 "{segment.text}"
                               </div>
                             ))}
                             {speaker.segments.length > 3 && (
-                              <div className="text-gray-500">
+                              <div className="text-gray-700 font-medium">
                                 +{speaker.segments.length - 3} more segments
                               </div>
                             )}

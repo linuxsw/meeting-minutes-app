@@ -20,22 +20,36 @@ export default function ResultPage() {
   const [error, setError] = useState<string | null>(null)
   const [showAddAttendee, setShowAddAttendee] = useState(false)
   const [newAttendeeName, setNewAttendeeName] = useState('')
+  const [editingAttendeeIndex, setEditingAttendeeIndex] = useState<number | null>(null)
+  const [editingAttendeeName, setEditingAttendeeName] = useState('')
   
   useEffect(() => {
     // Try to load processed transcript from session storage
-    const savedTranscript = sessionStorage.getItem('processedTranscript')
+    const savedTranscript = sessionStorage.getItem('processedTranscript') || sessionStorage.getItem('testTranscript')
     const savedAttendees = sessionStorage.getItem('attendees')
     
     if (savedTranscript) {
       try {
+        console.log('Loading transcript from session storage');
         const parsedTranscript = JSON.parse(savedTranscript)
         setTranscript(parsedTranscript)
         
         // Set attendees from session storage or from transcript speakers
         if (savedAttendees) {
-          setAttendees(JSON.parse(savedAttendees))
+          console.log('Loading attendees from session storage');
+          const parsedAttendees = JSON.parse(savedAttendees);
+          // Filter out any empty or duplicate attendees
+          const uniqueAttendees = [...new Set(parsedAttendees.filter((a: string) => a.trim()))];
+          setAttendees(uniqueAttendees);
         } else if (parsedTranscript.speakers) {
-          setAttendees(parsedTranscript.speakers.map((speaker: any) => speaker.name))
+          console.log('Generating attendees from transcript speakers');
+          // Filter out any empty or duplicate speaker names
+          const speakerNames = parsedTranscript.speakers.map((speaker: any) => speaker.name);
+          const uniqueSpeakers = [...new Set(speakerNames.filter((name: string) => name.trim() && name.toLowerCase() !== 'unknown'))];
+          setAttendees(uniqueSpeakers);
+          
+          // Store the attendees in session storage for persistence
+          sessionStorage.setItem('attendees', JSON.stringify(uniqueSpeakers));
         }
         
         // Generate a simple summary
@@ -96,22 +110,48 @@ export default function ResultPage() {
   
   const handleAddAttendee = () => {
     if (newAttendeeName.trim()) {
-      setAttendees([...attendees, newAttendeeName.trim()])
-      setNewAttendeeName('')
-      setShowAddAttendee(false)
+      const updatedAttendees = [...attendees, newAttendeeName.trim()];
+      setAttendees(updatedAttendees);
+      setNewAttendeeName('');
+      setShowAddAttendee(false);
+      
+      // Update session storage
+      sessionStorage.setItem('attendees', JSON.stringify(updatedAttendees));
     }
   }
   
-  const handleUpdateAttendee = (index: number, value: string) => {
-    const updatedAttendees = [...attendees]
-    updatedAttendees[index] = value
-    setAttendees(updatedAttendees)
+  const handleStartEditAttendee = (index: number) => {
+    setEditingAttendeeIndex(index);
+    setEditingAttendeeName(attendees[index]);
+  }
+  
+  const handleSaveEditAttendee = () => {
+    if (editingAttendeeIndex !== null && editingAttendeeName.trim()) {
+      const updatedAttendees = [...attendees];
+      updatedAttendees[editingAttendeeIndex] = editingAttendeeName.trim();
+      setAttendees(updatedAttendees);
+      
+      // Update session storage
+      sessionStorage.setItem('attendees', JSON.stringify(updatedAttendees));
+      
+      // Reset editing state
+      setEditingAttendeeIndex(null);
+      setEditingAttendeeName('');
+    }
+  }
+  
+  const handleCancelEditAttendee = () => {
+    setEditingAttendeeIndex(null);
+    setEditingAttendeeName('');
   }
   
   const handleRemoveAttendee = (index: number) => {
-    const updatedAttendees = [...attendees]
-    updatedAttendees.splice(index, 1)
-    setAttendees(updatedAttendees)
+    const updatedAttendees = [...attendees];
+    updatedAttendees.splice(index, 1);
+    setAttendees(updatedAttendees);
+    
+    // Update session storage
+    sessionStorage.setItem('attendees', JSON.stringify(updatedAttendees));
   }
   
   const handleGenerateMinutes = () => {
@@ -184,24 +224,27 @@ export default function ResultPage() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-xl font-semibold">Attendees</h2>
-          <button
+          <Button
             onClick={() => setShowAddAttendee(true)}
-            className="text-sm text-primary hover:underline flex items-center"
+            variant="outline"
+            size="sm"
+            className="flex items-center text-primary"
           >
             <PlusCircle className="w-4 h-4 mr-1" />
             Add Participant
-          </button>
+          </Button>
         </div>
         
         {showAddAttendee && (
-          <div className="flex items-center space-x-2 mb-2">
+          <div className="flex items-center space-x-2 mb-2 p-3 border rounded-md bg-gray-50">
             <Input
               value={newAttendeeName}
               onChange={(e) => setNewAttendeeName(e.target.value)}
               placeholder="Enter attendee name"
               className="flex-1"
+              autoFocus
             />
-            <Button onClick={handleAddAttendee} size="sm">
+            <Button onClick={handleAddAttendee} size="sm" className="bg-green-600 hover:bg-green-700">
               Add
             </Button>
             <Button onClick={() => setShowAddAttendee(false)} variant="outline" size="sm">
@@ -213,32 +256,60 @@ export default function ResultPage() {
         {attendees.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
             {attendees.map((attendee, index) => (
-              <div key={index} className="flex items-center justify-between p-2 border rounded-md">
-                <span>{attendee}</span>
-                <div className="flex items-center space-x-1">
-                  <button
-                    onClick={() => {
-                      const newName = prompt('Update attendee name', attendee)
-                      if (newName && newName.trim() && newName !== attendee) {
-                        handleUpdateAttendee(index, newName.trim())
-                      }
-                    }}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleRemoveAttendee(index)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
+              <div key={index} className="flex items-center justify-between p-2 border rounded-md bg-white">
+                {editingAttendeeIndex === index ? (
+                  <div className="flex items-center w-full space-x-1">
+                    <Input
+                      value={editingAttendeeName}
+                      onChange={(e) => setEditingAttendeeName(e.target.value)}
+                      className="flex-1"
+                      autoFocus
+                    />
+                    <Button 
+                      onClick={handleSaveEditAttendee} 
+                      size="icon" 
+                      variant="ghost"
+                      className="text-green-600 hover:text-green-800 hover:bg-green-50"
+                    >
+                      <Save className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      onClick={handleCancelEditAttendee} 
+                      size="icon" 
+                      variant="ghost"
+                      className="text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <span className="font-medium text-gray-800">{attendee}</span>
+                    <div className="flex items-center space-x-1">
+                      <Button
+                        onClick={() => handleStartEditAttendee(index)}
+                        size="icon"
+                        variant="ghost"
+                        className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        onClick={() => handleRemoveAttendee(index)}
+                        size="icon"
+                        variant="ghost"
+                        className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
         ) : (
-          <div className="text-center p-4 border rounded-md text-gray-500 mb-4">
+          <div className="text-center p-4 border rounded-md text-gray-500 mb-4 bg-gray-50">
             No attendees added yet. Add participants using the button above.
           </div>
         )}
@@ -259,65 +330,81 @@ export default function ResultPage() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-xl font-semibold">Action Items</h2>
-          <button
+          <Button
             onClick={handleAddActionItem}
-            className="text-sm text-primary hover:underline flex items-center"
+            variant="outline"
+            size="sm"
+            className="flex items-center text-primary"
           >
             <PlusCircle className="w-4 h-4 mr-1" />
             Add Action Item
-          </button>
+          </Button>
         </div>
         
-        {actionItems.map((item, index) => (
-          <div key={index} className="flex items-center space-x-2 mb-2">
-            <Input
-              value={item}
-              onChange={(e) => handleUpdateActionItem(index, e.target.value)}
-              placeholder={`Action item ${index + 1}`}
-              className="flex-1"
-            />
-            <Button
-              onClick={() => handleRemoveActionItem(index)}
-              variant="outline"
-              size="icon"
-              className="text-red-500"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+        {actionItems.length > 0 ? (
+          actionItems.map((item, index) => (
+            <div key={index} className="flex items-center space-x-2 mb-2">
+              <Input
+                value={item}
+                onChange={(e) => handleUpdateActionItem(index, e.target.value)}
+                placeholder={`Action item ${index + 1}`}
+                className="flex-1"
+              />
+              <Button
+                onClick={() => handleRemoveActionItem(index)}
+                variant="outline"
+                size="icon"
+                className="text-red-500"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))
+        ) : (
+          <div className="text-center p-4 border rounded-md text-gray-500 mb-4 bg-gray-50">
+            No action items added yet. Add action items using the button above.
           </div>
-        ))}
+        )}
       </div>
       
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-xl font-semibold">Decisions</h2>
-          <button
+          <Button
             onClick={handleAddDecision}
-            className="text-sm text-primary hover:underline flex items-center"
+            variant="outline"
+            size="sm"
+            className="flex items-center text-primary"
           >
             <PlusCircle className="w-4 h-4 mr-1" />
             Add Decision
-          </button>
+          </Button>
         </div>
         
-        {decisions.map((decision, index) => (
-          <div key={index} className="flex items-center space-x-2 mb-2">
-            <Input
-              value={decision}
-              onChange={(e) => handleUpdateDecision(index, e.target.value)}
-              placeholder={`Decision ${index + 1}`}
-              className="flex-1"
-            />
-            <Button
-              onClick={() => handleRemoveDecision(index)}
-              variant="outline"
-              size="icon"
-              className="text-red-500"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+        {decisions.length > 0 ? (
+          decisions.map((decision, index) => (
+            <div key={index} className="flex items-center space-x-2 mb-2">
+              <Input
+                value={decision}
+                onChange={(e) => handleUpdateDecision(index, e.target.value)}
+                placeholder={`Decision ${index + 1}`}
+                className="flex-1"
+              />
+              <Button
+                onClick={() => handleRemoveDecision(index)}
+                variant="outline"
+                size="icon"
+                className="text-red-500"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))
+        ) : (
+          <div className="text-center p-4 border rounded-md text-gray-500 mb-4 bg-gray-50">
+            No decisions added yet. Add decisions using the button above.
           </div>
-        ))}
+        )}
       </div>
       
       <div className="flex justify-end">

@@ -91,10 +91,27 @@ export default function Home() {
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target && e.target.result) {
-          sessionStorage.setItem('uploadedTranscriptFile', e.target.result as string);
+          const content = e.target.result as string;
+          console.log('Storing transcript file in sessionStorage:', file.name);
+          sessionStorage.setItem('uploadedTranscriptFile', content);
           sessionStorage.setItem('uploadedTranscriptFileName', file.name);
           sessionStorage.setItem('uploadedTranscriptFileType', file.type);
           sessionStorage.setItem('uploadedTranscriptFileSize', file.size.toString());
+          
+          // Pre-parse the transcript to ensure it's valid
+          try {
+            parseTranscript(content, file.name)
+              .then(parsedTranscript => {
+                console.log('Pre-parsed transcript successfully');
+                // Store the parsed transcript directly to avoid parsing issues later
+                sessionStorage.setItem('testTranscript', JSON.stringify(parsedTranscript));
+              })
+              .catch(err => {
+                console.error('Error pre-parsing transcript:', err);
+              });
+          } catch (err) {
+            console.error('Error during pre-parse attempt:', err);
+          }
         }
       };
       reader.readAsText(file);
@@ -104,6 +121,7 @@ export default function Home() {
       sessionStorage.removeItem('uploadedTranscriptFileName');
       sessionStorage.removeItem('uploadedTranscriptFileType');
       sessionStorage.removeItem('uploadedTranscriptFileSize');
+      sessionStorage.removeItem('testTranscript');
     }
   }
 
@@ -124,6 +142,7 @@ export default function Home() {
         const processedTranscript = await parseTranscript(transcriptContent, uploadedTranscript.name);
         
         // Store the processed transcript in sessionStorage
+        console.log('Storing processed transcript in sessionStorage');
         sessionStorage.setItem('testTranscript', JSON.stringify(processedTranscript));
       }
       
