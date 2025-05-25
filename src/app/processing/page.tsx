@@ -30,6 +30,7 @@ export default function ProcessingPage() {
   const [meetingDate, setMeetingDate] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // Dedicated state variable for transcript segments to prevent mutation issues
   const [transcriptSegments, setTranscriptSegments] = useState<any[]>([])
   
   useEffect(() => {
@@ -38,23 +39,29 @@ export default function ProcessingPage() {
     const savedTranscript = sessionStorage.getItem('testTranscript')
     const savedFileName = sessionStorage.getItem('uploadedTranscriptFileName')
     
-    console.log('Checking for transcript in session storage...');
-    console.log('uploadedTranscriptFile exists:', !!savedTranscriptFile);
-    console.log('testTranscript exists:', !!savedTranscript);
+    console.log('[TRANSCRIPT_DEBUG] Checking for transcript in session storage...');
+    console.log('[TRANSCRIPT_DEBUG] uploadedTranscriptFile exists:', !!savedTranscriptFile);
+    console.log('[TRANSCRIPT_DEBUG] testTranscript exists:', !!savedTranscript);
     
     if (savedTranscript) {
       try {
         setLoading(true)
-        console.log('Found parsed transcript in session storage');
+        console.log('[TRANSCRIPT_DEBUG] Found parsed transcript in session storage');
         
         // If we have a parsed transcript in JSON format
         const parsedTranscript = JSON.parse(savedTranscript)
-        console.log('Parsed transcript segments count:', parsedTranscript.segments?.length || 0);
+        console.log('[TRANSCRIPT_DEBUG] Parsed transcript segments count:', parsedTranscript.segments?.length || 0);
         
-        // Store segments in a separate state variable to ensure they're preserved
         if (parsedTranscript.segments && parsedTranscript.segments.length > 0) {
-          console.log('Setting transcript segments to:', parsedTranscript.segments.length, 'items');
-          setTranscriptSegments([...parsedTranscript.segments]);
+          console.log('[TRANSCRIPT_DEBUG] First segment:', JSON.stringify(parsedTranscript.segments[0]));
+          console.log('[TRANSCRIPT_DEBUG] Last segment:', JSON.stringify(parsedTranscript.segments[parsedTranscript.segments.length - 1]));
+          
+          // Deep clone each segment to prevent mutation
+          const clonedSegments = parsedTranscript.segments.map((segment: any) => ({...segment}));
+          console.log('[TRANSCRIPT_DEBUG] Setting transcript segments to:', clonedSegments.length, 'items');
+          console.log('[TRANSCRIPT_DEBUG] Cloned segments array:', JSON.stringify(clonedSegments.slice(0, 2)) + '...');
+          
+          setTranscriptSegments(clonedSegments);
         }
         
         setTranscript(parsedTranscript)
@@ -82,6 +89,7 @@ export default function ProcessingPage() {
         parsedTranscript.segments.forEach((segment) => {
           const speaker = speakersMap.get(segment.speakerId)
           if (speaker) {
+            // Clone segment to prevent mutation
             speaker.segments.push({
               id: segment.id,
               text: segment.text,
@@ -93,22 +101,23 @@ export default function ProcessingPage() {
         
         // Sort segments by start time for each speaker
         speakersMap.forEach((speaker) => {
-          speaker.segments.sort((a, b) => a.startTime - b.startTime)
+          // Create a new array before sorting to prevent mutation
+          speaker.segments = [...speaker.segments].sort((a, b) => a.startTime - b.startTime)
         })
         
         setSpeakersWithSegments(Array.from(speakersMap.values()))
         setLoading(false)
       } catch (err) {
-        console.error('Error loading parsed transcript:', err)
+        console.error('[TRANSCRIPT_DEBUG] Error loading parsed transcript:', err)
         // Fall back to raw transcript file if available
         handleRawTranscriptFile(savedTranscriptFile, savedFileName)
       }
     } else if (savedTranscriptFile) {
       // If we only have the raw transcript file
-      console.log('No parsed transcript found, using raw transcript file');
+      console.log('[TRANSCRIPT_DEBUG] No parsed transcript found, using raw transcript file');
       handleRawTranscriptFile(savedTranscriptFile, savedFileName)
     } else {
-      console.error('No transcript found in session storage');
+      console.error('[TRANSCRIPT_DEBUG] No transcript found in session storage');
       setError('No transcript found. Please upload a transcript file first.')
       setLoading(false)
     }
@@ -122,19 +131,25 @@ export default function ProcessingPage() {
     }
     
     try {
-      console.log('Parsing raw transcript content with filename:', fileName);
-      console.log('Raw transcript content (first 200 chars):', transcriptContent.substring(0, 200));
+      console.log('[TRANSCRIPT_DEBUG] Parsing raw transcript content with filename:', fileName);
+      console.log('[TRANSCRIPT_DEBUG] Raw transcript content (first 200 chars):', transcriptContent.substring(0, 200));
       
       // Parse the transcript
       parseTranscript(transcriptContent, fileName || undefined)
         .then((result) => {
-          console.log('Successfully parsed transcript');
-          console.log('Parsed transcript segments count:', result.segments?.length || 0);
+          console.log('[TRANSCRIPT_DEBUG] Successfully parsed transcript');
+          console.log('[TRANSCRIPT_DEBUG] Parsed transcript segments count:', result.segments?.length || 0);
           
-          // Store segments in a separate state variable to ensure they're preserved
           if (result.segments && result.segments.length > 0) {
-            console.log('Setting transcript segments to:', result.segments.length, 'items');
-            setTranscriptSegments([...result.segments]);
+            console.log('[TRANSCRIPT_DEBUG] First segment:', JSON.stringify(result.segments[0]));
+            console.log('[TRANSCRIPT_DEBUG] Last segment:', JSON.stringify(result.segments[result.segments.length - 1]));
+            
+            // Deep clone each segment to prevent mutation
+            const clonedSegments = result.segments.map(segment => ({...segment}));
+            console.log('[TRANSCRIPT_DEBUG] Setting transcript segments to:', clonedSegments.length, 'items');
+            console.log('[TRANSCRIPT_DEBUG] Cloned segments array:', JSON.stringify(clonedSegments.slice(0, 2)) + '...');
+            
+            setTranscriptSegments(clonedSegments);
           }
           
           setTranscript(result)
@@ -165,6 +180,7 @@ export default function ProcessingPage() {
           result.segments.forEach((segment) => {
             const speaker = speakersMap.get(segment.speakerId)
             if (speaker) {
+              // Clone segment to prevent mutation
               speaker.segments.push({
                 id: segment.id,
                 text: segment.text,
@@ -176,19 +192,20 @@ export default function ProcessingPage() {
           
           // Sort segments by start time for each speaker
           speakersMap.forEach((speaker) => {
-            speaker.segments.sort((a, b) => a.startTime - b.startTime)
+            // Create a new array before sorting to prevent mutation
+            speaker.segments = [...speaker.segments].sort((a, b) => a.startTime - b.startTime)
           })
           
           setSpeakersWithSegments(Array.from(speakersMap.values()))
           setLoading(false)
         })
         .catch((err) => {
-          console.error('Error parsing transcript:', err)
+          console.error('[TRANSCRIPT_DEBUG] Error parsing transcript:', err)
           setError('Failed to parse transcript. Please try again.')
           setLoading(false)
         })
     } catch (err) {
-      console.error('Error loading transcript:', err)
+      console.error('[TRANSCRIPT_DEBUG] Error loading transcript:', err)
       setError('Failed to load transcript. Please try again.')
       setLoading(false)
     }
@@ -224,6 +241,8 @@ export default function ProcessingPage() {
   const handleMergeSpeakers = (sourceId: string, targetId: string) => {
     if (!transcript) return
     
+    console.log('[TRANSCRIPT_DEBUG] Merging speakers:', sourceId, 'into', targetId);
+    
     // Get source and target speakers
     const sourceSpeaker = transcript.speakers.find((s) => s.id === sourceId)
     const targetSpeaker = transcript.speakers.find((s) => s.id === targetId)
@@ -249,6 +268,22 @@ export default function ProcessingPage() {
     }
     
     setTranscript(updatedTranscript)
+    
+    // Update transcriptSegments state to reflect the speaker merge
+    console.log('[TRANSCRIPT_DEBUG] Updating transcriptSegments for speaker merge');
+    console.log('[TRANSCRIPT_DEBUG] Before merge - transcriptSegments count:', transcriptSegments.length);
+    
+    const updatedTranscriptSegments = transcriptSegments.map(segment => {
+      if (segment.speakerId === sourceId) {
+        return { ...segment, speakerId: targetId }
+      }
+      return segment
+    });
+    
+    console.log('[TRANSCRIPT_DEBUG] After merge - updatedTranscriptSegments count:', updatedTranscriptSegments.length);
+    
+    // Update the dedicated state variable
+    setTranscriptSegments(updatedTranscriptSegments);
     
     // Store the updated transcript to preserve merged speakers
     sessionStorage.setItem('processedTranscript', JSON.stringify(updatedTranscript))
@@ -344,6 +379,12 @@ export default function ProcessingPage() {
   const displaySegments = transcriptSegments.length > 0 ? transcriptSegments : 
                          (transcript && transcript.segments ? transcript.segments : []);
   
+  console.log('[TRANSCRIPT_DEBUG] Rendering transcript preview with', displaySegments.length, 'segments');
+  console.log('[TRANSCRIPT_DEBUG] displaySegments before rendering:', 
+    displaySegments.length > 0 
+      ? `First: ${JSON.stringify(displaySegments[0])}, Last: ${JSON.stringify(displaySegments[displaySegments.length-1])}`
+      : 'No segments');
+  
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Process Transcript</h1>
@@ -376,18 +417,29 @@ export default function ProcessingPage() {
         <Card className="p-4 h-96 overflow-y-auto border-2 border-gray-200 bg-white">
           {displaySegments && displaySegments.length > 0 ? (
             <div className="space-y-3">
-              {/* Use the separate state variable for rendering */}
-              {displaySegments
-                .sort((a, b) => a.startTime - b.startTime)
-                .map((segment, index) => {
+              {/* Create a new array copy before sorting to prevent mutation of the original array */}
+              {(() => {
+                console.log('[TRANSCRIPT_DEBUG] Creating new array copy for rendering');
+                const segmentsCopy = [...displaySegments];
+                console.log('[TRANSCRIPT_DEBUG] Segments copy length:', segmentsCopy.length);
+                
+                const sortedSegments = segmentsCopy.sort((a, b) => a.startTime - b.startTime);
+                console.log('[TRANSCRIPT_DEBUG] Sorted segments length:', sortedSegments.length);
+                console.log('[TRANSCRIPT_DEBUG] First sorted segment:', 
+                  sortedSegments.length > 0 ? JSON.stringify(sortedSegments[0]) : 'None');
+                
+                return sortedSegments.map((segment, index) => {
                   const speaker = transcript?.speakers.find((s) => s.id === segment.speakerId);
+                  console.log('[TRANSCRIPT_DEBUG] Rendering segment', index, 'with text:', segment.text.substring(0, 30) + '...');
+                  
                   return (
                     <div key={`segment-${index}`} className="pb-2 border-b border-gray-100 last:border-0">
                       <span className="font-semibold text-black">{speaker?.name || 'Unknown'}:</span>{' '}
                       <span className="text-black">{segment.text}</span>
                     </div>
                   );
-                })}
+                });
+              })()}
             </div>
           ) : (
             <div className="text-gray-500 h-full flex items-center justify-center">
@@ -434,21 +486,20 @@ export default function ProcessingPage() {
                             id={`speaker-${speaker.id}`}
                             value={speaker.name}
                             onChange={(e) => handleSpeakerNameChange(speaker.id, e.target.value)}
-                            className="mb-2 text-black bg-white border-gray-300"
+                            className="mb-2"
                           />
-                          <div className="text-xs text-gray-700 mb-2 font-medium">
+                          <div className="text-xs text-gray-700 mb-2">
                             Drag to another speaker to merge
                           </div>
-                          <div className="max-h-32 overflow-y-auto text-sm text-black bg-gray-50 p-2 rounded">
-                            {speaker.segments.slice(0, 3).map((segment) => (
-                              <div key={segment.id} className="mb-1 truncate text-black">
-                                "{segment.text}"
-                              </div>
-                            ))}
-                            {speaker.segments.length > 3 && (
-                              <div className="text-xs text-gray-500 mt-1">
-                                +{speaker.segments.length - 3} more segments
-                              </div>
+                          <div className="max-h-32 overflow-y-auto text-sm text-gray-700 border border-gray-200 rounded p-2">
+                            {speaker.segments.length > 0 ? (
+                              speaker.segments.map((segment, index) => (
+                                <div key={segment.id} className="mb-1 last:mb-0">
+                                  &ldquo;{segment.text}&rdquo;
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-gray-500">No segments</div>
                             )}
                           </div>
                         </div>
@@ -464,10 +515,7 @@ export default function ProcessingPage() {
       </div>
       
       <div className="flex justify-end">
-        <Button 
-          onClick={handleContinue} 
-          className="bg-white text-black hover:bg-gray-100 border border-gray-300"
-        >
+        <Button onClick={handleContinue} className="bg-white text-black hover:bg-gray-100 border border-gray-300">
           Continue to Generate Report
         </Button>
       </div>
