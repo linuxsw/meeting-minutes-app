@@ -1,5 +1,7 @@
+'use client'
+
 import React from 'react';
-import { useRouter } from 'next/router';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -17,11 +19,20 @@ const languages = [
 
 export default function LanguageSwitcher() {
   const router = useRouter();
-  const { pathname, asPath, query } = router;
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   
   const changeLanguage = (locale: string) => {
-    router.push({ pathname, query }, asPath, { locale });
+    // Create a new URLSearchParams instance
+    const params = new URLSearchParams(searchParams);
+    params.set('locale', locale);
+    
+    // Navigate to the same path with updated locale parameter
+    router.push(`${pathname}?${params.toString()}`);
   };
+
+  // Get current locale from search params or default to 'en'
+  const currentLocale = searchParams.get('locale') || 'en';
 
   return (
     <DropdownMenu>
@@ -36,7 +47,7 @@ export default function LanguageSwitcher() {
           <DropdownMenuItem 
             key={language.code}
             onClick={() => changeLanguage(language.code)}
-            className={router.locale === language.code ? "font-bold" : ""}
+            className={currentLocale === language.code ? "font-bold" : ""}
           >
             {language.name}
           </DropdownMenuItem>

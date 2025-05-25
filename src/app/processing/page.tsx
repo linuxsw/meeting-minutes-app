@@ -2,310 +2,236 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ProcessedTranscript, Speaker } from '@/lib/transcript-processor'
-
-interface SpeakerEditorProps {
-  speakers: Speaker[]
-  onUpdateSpeaker: (speakerId: string, name: string) => void
-  onMergeSpeakers: (sourceId: string, targetId: string) => void
-}
-
-function SpeakerEditor({ speakers, onUpdateSpeaker, onMergeSpeakers }: SpeakerEditorProps) {
-  const [editingSpeakerId, setEditingSpeakerId] = useState<string | null>(null)
-  const [newName, setNewName] = useState('')
-  const [mergeSource, setMergeSource] = useState<string | null>(null)
-  const [mergeTarget, setMergeTarget] = useState<string | null>(null)
-  
-  const handleEditClick = (speakerId: string, currentName: string) => {
-    setEditingSpeakerId(speakerId)
-    setNewName(currentName)
-  }
-  
-  const handleSaveClick = () => {
-    if (editingSpeakerId && newName.trim()) {
-      onUpdateSpeaker(editingSpeakerId, newName.trim())
-      setEditingSpeakerId(null)
-      setNewName('')
-    }
-  }
-  
-  const handleMergeClick = () => {
-    if (mergeSource && mergeTarget && mergeSource !== mergeTarget) {
-      onMergeSpeakers(mergeSource, mergeTarget)
-      setMergeSource(null)
-      setMergeTarget(null)
-    }
-  }
-  
-  return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium">Edit Speakers</h3>
-      
-      <div className="space-y-2">
-        {speakers.map(speaker => (
-          <div key={speaker.id} className="flex items-center justify-between p-2 border rounded-md">
-            {editingSpeakerId === speaker.id ? (
-              <div className="flex items-center space-x-2 w-full">
-                <input
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  className="flex-1 px-2 py-1 border rounded-md"
-                />
-                <button
-                  onClick={handleSaveClick}
-                  className="px-2 py-1 text-sm bg-primary text-primary-foreground rounded-md"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => setEditingSpeakerId(null)}
-                  className="px-2 py-1 text-sm bg-muted text-muted-foreground rounded-md"
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <>
-                <span>{speaker.name}</span>
-                <button
-                  onClick={() => handleEditClick(speaker.id, speaker.name)}
-                  className="px-2 py-1 text-sm bg-muted hover:bg-muted/80 rounded-md"
-                >
-                  Edit
-                </button>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-      
-      <div className="pt-4 border-t">
-        <h3 className="text-lg font-medium mb-2">Merge Speakers</h3>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm mb-1">Source Speaker (will be removed)</label>
-            <select
-              value={mergeSource || ''}
-              onChange={(e) => setMergeSource(e.target.value)}
-              className="w-full p-2 border rounded-md bg-background"
-            >
-              <option value="">Select source speaker</option>
-              {speakers.map(speaker => (
-                <option key={`source-${speaker.id}`} value={speaker.id}>
-                  {speaker.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm mb-1">Target Speaker (will remain)</label>
-            <select
-              value={mergeTarget || ''}
-              onChange={(e) => setMergeTarget(e.target.value)}
-              className="w-full p-2 border rounded-md bg-background"
-              disabled={!mergeSource}
-            >
-              <option value="">Select target speaker</option>
-              {speakers
-                .filter(speaker => speaker.id !== mergeSource)
-                .map(speaker => (
-                  <option key={`target-${speaker.id}`} value={speaker.id}>
-                    {speaker.name}
-                  </option>
-                ))}
-            </select>
-          </div>
-          
-          <button
-            onClick={handleMergeClick}
-            disabled={!mergeSource || !mergeTarget}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md disabled:opacity-50"
-          >
-            Merge Speakers
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-interface TranscriptPreviewProps {
-  transcript: ProcessedTranscript
-}
-
-function TranscriptPreview({ transcript }: TranscriptPreviewProps) {
-  return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium">Transcript Preview</h3>
-      
-      <div className="border rounded-md p-4 max-h-96 overflow-y-auto">
-        {transcript.segments.map(segment => {
-          const speaker = transcript.speakers.find(s => s.id === segment.speakerId)
-          return (
-            <div key={segment.id} className="mb-4">
-              <div className="font-medium">{speaker?.name || 'Unknown'}</div>
-              <div className="text-sm text-muted-foreground">
-                {formatTime(segment.startTime)} - {formatTime(segment.endTime)}
-              </div>
-              <div className="mt-1">{segment.text}</div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-// Helper function to format time in MM:SS format
-function formatTime(seconds: number): string {
-  const mins = Math.floor(seconds / 60)
-  const secs = Math.floor(seconds % 60)
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-}
+import { Separator } from '@/components/ui/separator'
+import { Speaker, TranscriptSegment } from '@/lib/transcript-processor'
+import { ArrowRight, Loader2 } from 'lucide-react'
 
 export default function ProcessingPage() {
-  const [transcript, setTranscript] = useState<ProcessedTranscript | null>(null)
-  const [templateId, setTemplateId] = useState<string>('training')
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-  
+  const [transcript, setTranscript] = useState<string>('')
+  const [transcriptSegments, setTranscriptSegments] = useState<TranscriptSegment[]>([])
+  const [speakers, setSpeakers] = useState<Speaker[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState('speakers')
+
   useEffect(() => {
-    // Get transcript data from sessionStorage
-    try {
-      const transcriptJson = sessionStorage.getItem('testTranscript')
-      const template = sessionStorage.getItem('testTemplateId')
-      
-      if (!transcriptJson) {
-        setError('No transcript data found. Please upload a file first.')
-        setIsLoading(false)
-        return
-      }
-      
-      const parsedTranscript = JSON.parse(transcriptJson) as ProcessedTranscript
-      setTranscript(parsedTranscript)
-      
-      if (template) {
-        setTemplateId(template)
-      }
-    } catch (err) {
-      console.error('Error loading transcript data:', err)
-      setError('Failed to load transcript data. Please try again.')
-    } finally {
-      setIsLoading(false)
+    // Get transcript from session storage
+    const storedTranscript = sessionStorage.getItem('transcript')
+    if (!storedTranscript) {
+      setError('No transcript found. Please upload a transcript file first.')
+      setLoading(false)
+      return
     }
-  }, [router])
-  
-  const handleUpdateSpeaker = (speakerId: string, name: string) => {
-    if (!transcript) return
+
+    try {
+      // Parse the transcript
+      const parsedTranscript = JSON.parse(storedTranscript)
+      setTranscript(parsedTranscript.text || '')
+      
+      // Parse segments and ensure they're sorted chronologically
+      const segments = parsedTranscript.segments || []
+      const sortedSegments = [...segments].sort((a, b) => a.start - b.start)
+      setTranscriptSegments(sortedSegments)
+      
+      console.log(`Loaded ${sortedSegments.length} transcript segments`)
+      
+      // Extract unique speakers
+      const uniqueSpeakers = Array.from(
+        new Set(segments.map((segment: TranscriptSegment) => segment.speaker))
+      ).map((speaker) => ({
+        id: speaker,
+        name: speaker,
+      }))
+      
+      setSpeakers(uniqueSpeakers)
+      setLoading(false)
+    } catch (err) {
+      console.error('Error parsing transcript:', err)
+      setError('Error parsing transcript. Please try again.')
+      setLoading(false)
+    }
+  }, [])
+
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return
     
-    setTranscript(prev => {
-      if (!prev) return prev
-      return {
-        ...prev,
-        speakers: prev.speakers.map(speaker => 
-          speaker.id === speakerId ? { ...speaker, name } : speaker
-        )
+    const { source, destination } = result
+    
+    // Skip if dropped in the same place
+    if (source.droppableId === destination.droppableId && 
+        source.index === destination.index) {
+      return
+    }
+    
+    // Get the speaker being dragged
+    const draggedSpeaker = speakers[source.index]
+    
+    // If dropped on another speaker, merge them
+    if (source.droppableId === 'speakers' && 
+        destination.droppableId === 'speakers') {
+      
+      const targetSpeaker = speakers[destination.index]
+      
+      // Update transcript segments to use the target speaker name
+      const updatedSegments = transcriptSegments.map(segment => {
+        if (segment.speaker === draggedSpeaker.name) {
+          return { ...segment, speaker: targetSpeaker.name }
+        }
+        return segment
+      })
+      
+      // Remove the dragged speaker from the list
+      const updatedSpeakers = speakers.filter((_, index) => index !== source.index)
+      
+      // Update state
+      setTranscriptSegments(updatedSegments)
+      setSpeakers(updatedSpeakers)
+      
+      // Update session storage
+      const updatedTranscript = {
+        text: transcript,
+        segments: updatedSegments
       }
-    })
+      sessionStorage.setItem('transcript', JSON.stringify(updatedTranscript))
+      sessionStorage.setItem('speakers', JSON.stringify(updatedSpeakers))
+    }
   }
-  
-  const handleMergeSpeakers = (sourceId: string, targetId: string) => {
-    if (!transcript) return
-    
-    const updatedSpeakers = transcript.speakers.filter(speaker => speaker.id !== sourceId)
-    
-    const updatedSegments = transcript.segments.map(segment => {
-      if (segment.speakerId === sourceId) {
-        return { ...segment, speakerId: targetId }
-      }
-      return segment
-    })
-    
-    setTranscript({
-      ...transcript,
-      speakers: updatedSpeakers,
-      segments: updatedSegments,
-    })
-  }
-  
+
   const handleContinue = () => {
-    if (!transcript) return
+    // Save speakers to session storage
+    sessionStorage.setItem('speakers', JSON.stringify(speakers))
     
-    // Store the processed transcript for the next page
-    sessionStorage.setItem('processedTranscript', JSON.stringify(transcript))
-    
-    // Navigate to the result page
+    // Navigate to result page
     router.push('/result')
   }
-  
-  if (isLoading) {
+
+  if (loading) {
     return (
-      <div className="container py-10 text-center">
-        <h1 className="text-3xl font-bold mb-6">Processing Transcript</h1>
-        <div className="p-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4">Loading transcript data...</p>
-        </div>
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2">Processing transcript...</span>
       </div>
     )
   }
-  
-  if (error || !transcript) {
+
+  if (error) {
     return (
-      <div className="container py-10">
-        <h1 className="text-3xl font-bold mb-6">Error</h1>
-        <Card className="p-6">
-          <div className="text-center">
-            <div className="text-red-500 mb-4">
-              {error || 'Failed to load transcript data'}
-            </div>
-            <button
-              onClick={() => router.push('/')}
-              className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md"
-            >
-              Return to Home
-            </button>
-          </div>
-        </Card>
+      <div className="flex h-screen flex-col items-center justify-center">
+        <div className="text-xl font-semibold text-red-500">{error}</div>
+        <Button 
+          className="mt-4" 
+          onClick={() => router.push('/')}
+        >
+          Go Back
+        </Button>
       </div>
     )
   }
-  
+
   return (
-    <div className="container py-10">
-      <h1 className="text-3xl font-bold mb-6">Process Transcript</h1>
+    <div className="container mx-auto py-8">
+      <h1 className="mb-6 text-3xl font-bold">Process Transcript</h1>
       
-      <Tabs defaultValue="speakers" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="speakers">Edit Speakers</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="speakers">Speakers</TabsTrigger>
           <TabsTrigger value="preview">Transcript Preview</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="speakers" className="p-4 border rounded-md mt-4">
-          <SpeakerEditor 
-            speakers={transcript.speakers} 
-            onUpdateSpeaker={handleUpdateSpeaker}
-            onMergeSpeakers={handleMergeSpeakers}
-          />
+        <TabsContent value="speakers">
+          <div className="mb-4 rounded-lg border p-4">
+            <h2 className="mb-2 text-xl font-semibold">Merge Speakers</h2>
+            <p className="mb-4 text-gray-700">
+              Drag and drop speakers to merge them. For example, if "John" and "John Doe" 
+              are the same person, drag one onto the other to combine them.
+            </p>
+            
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="speakers">
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="space-y-2"
+                  >
+                    {speakers.map((speaker, index) => (
+                      <Draggable
+                        key={speaker.id}
+                        draggableId={speaker.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={`rounded-lg border bg-white p-3 shadow-sm ${
+                              snapshot.isDragging ? 'opacity-70' : ''
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="text-gray-900 font-medium">{speaker.name}</div>
+                              <div className="text-sm text-gray-500">
+                                {transcriptSegments.filter(s => s.speaker === speaker.name).length} segments
+                              </div>
+                            </div>
+                            
+                            <div className="mt-2 text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                              {transcriptSegments
+                                .filter(s => s.speaker === speaker.name)
+                                .slice(0, 1)
+                                .map((segment, i) => (
+                                  <div key={i} className="line-clamp-1">
+                                    "{segment.text}"
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </div>
         </TabsContent>
         
-        <TabsContent value="preview" className="p-4 border rounded-md mt-4">
-          <TranscriptPreview transcript={transcript} />
+        <TabsContent value="preview">
+          <div className="mb-4 rounded-lg border p-4">
+            <h2 className="mb-2 text-xl font-semibold">Transcript Preview</h2>
+            <p className="mb-4 text-gray-700">
+              Review the transcript before generating meeting minutes.
+            </p>
+            
+            <div className="h-96 overflow-y-auto border rounded-lg p-4 space-y-3">
+              {transcriptSegments.map((segment, index) => (
+                <div key={index || `segment-${index}`} className="border-b pb-2">
+                  <div className="font-medium text-gray-900">{segment.speaker}:</div>
+                  <div className="text-gray-900">{segment.text}</div>
+                </div>
+              ))}
+              {transcriptSegments.length === 0 && (
+                <div className="text-gray-500 italic">No transcript content available</div>
+              )}
+              <div className="text-sm text-gray-500 mt-2">
+                Total segments: {transcriptSegments.length}
+              </div>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
       
       <div className="mt-6 flex justify-end">
-        <button 
-          className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md"
-          onClick={handleContinue}
-        >
-          Continue to Generate Minutes
-        </button>
+        <Button onClick={handleContinue}>
+          Continue <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
       </div>
     </div>
   )
