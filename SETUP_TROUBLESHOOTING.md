@@ -1,124 +1,247 @@
-# Meeting Minutes Generator - Setup Troubleshooting Guide
+# Meeting Minutes Generator - Troubleshooting Guide
 
-## Environment Setup Issues and Solutions
+## Common Installation Issues
 
-### Python Environment Setup
+### Node.js Version Conflicts
 
-The Meeting Minutes Generator application supports three different Python environment management options:
+#### Symptoms
+- Error messages about incompatible Node.js versions
+- Unexpected behavior during npm install
+- Build failures with cryptic error messages
 
-1. **venv** (default): Uses Python's built-in virtual environment module
-2. **uv**: Uses Astral's 'uv' tool for faster environment creation and package installation
-3. **system**: Installs packages globally (not recommended)
+#### Solutions
 
-### Known Issues and Solutions
+##### Windows
+1. **Check current version**:
+   ```
+   node -v
+   npm -v
+   ```
 
-#### Issue: pip Module Error with venv
+2. **Using nvm-windows (recommended)**:
+   ```
+   # Install nvm-windows from https://github.com/coreybutler/nvm-windows/releases
+   nvm install 22.13.0
+   nvm use 22.13.0
+   ```
 
-When using the default `venv` environment, you might encounter the following error:
+3. **Clean installation**:
+   - Uninstall existing Node.js from Control Panel
+   - Delete any remaining folders:
+     - `C:\Program Files\nodejs`
+     - `C:\Program Files (x86)\nodejs`
+     - `%APPDATA%\npm`
+     - `%APPDATA%\npm-cache`
+   - Install the correct version from nodejs.org
 
-```
-ModuleNotFoundError: No module named 'pip._internal.operations.build'
-```
+##### macOS
+1. **Check current version**:
+   ```
+   node -v
+   npm -v
+   ```
 
-This error occurs during the installation of Python packages and prevents the setup from completing successfully.
+2. **Using nvm (recommended)**:
+   ```
+   # Install nvm
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+   
+   # Restart terminal or source profile
+   source ~/.zshrc  # or ~/.bash_profile
+   
+   # Install and use correct version
+   nvm install 22.13.0
+   nvm use 22.13.0
+   ```
 
-**Solution:**
+3. **Using Homebrew**:
+   ```
+   # If installed with Homebrew
+   brew unlink node
+   brew install node@22
+   brew link node@22
+   
+   # Add to PATH if needed
+   echo 'export PATH="/usr/local/opt/node@22/bin:$PATH"' >> ~/.zshrc
+   source ~/.zshrc
+   ```
 
-The setup script has been updated to automatically handle this issue by:
+##### Linux
+1. **Check current version**:
+   ```
+   node -v
+   npm -v
+   ```
 
-1. Detecting the pip module error when using `venv`
-2. Automatically falling back to the `uv` environment manager
-3. Continuing the installation process with `uv` instead
+2. **Using nvm (recommended)**:
+   ```
+   # Install nvm
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+   
+   # Restart terminal or source profile
+   source ~/.bashrc
+   
+   # Install and use correct version
+   nvm install 22.13.0
+   nvm use 22.13.0
+   ```
 
-You can also manually specify the `uv` environment from the start:
-
-```bash
-./setup_app.sh --install-deps --python-env uv
-```
-
-Or in interactive mode, select option 2 when prompted for the Python environment type.
-
-#### Why uv Works Better
-
-The `uv` tool is a modern Python package installer and environment manager that:
-
-- Has better dependency resolution
-- Is more reliable across different platforms
-- Handles complex package installations more effectively
-- Is generally faster than pip
-
-For the Meeting Minutes Generator application, `uv` has proven to be more reliable, especially when installing packages with complex dependencies like WeasyPrint.
+3. **Using package manager**:
+   ```
+   # Remove existing Node.js
+   sudo apt remove nodejs npm  # Ubuntu/Debian
+   sudo yum remove nodejs npm  # CentOS/RHEL
+   
+   # Install correct version using NodeSource
+   curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+   sudo apt-get install -y nodejs  # Ubuntu/Debian
+   
+   # Or for CentOS/RHEL
+   curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+   sudo yum install -y nodejs
+   ```
 
 ### npm Dependency Conflicts
 
-When installing Node.js dependencies, you might encounter peer dependency conflicts, especially with React versions. The setup script handles this by using the `--legacy-peer-deps` flag with npm install.
+#### Symptoms
+- Errors about peer dependencies
+- Failed installations with dependency tree errors
+- Missing modules errors when starting the application
 
-If you're installing dependencies manually, use:
+#### Solutions
 
-```bash
-npm install --legacy-peer-deps
-```
-
-### Troubleshooting Steps
-
-If you encounter issues during setup:
-
-1. **Try using uv instead of venv**:
-   ```bash
-   ./setup_app.sh --install-deps --python-env uv
+1. **Use legacy peer deps flag**:
    ```
-
-2. **Check system dependencies**:
-   Ensure all required system packages are installed:
-   - For Ubuntu/Debian: `sudo apt-get install python3-pip python3-venv build-essential libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 libffi-dev`
-   - For macOS: `brew install python@3.11 pango harfbuzz`
-
-3. **Manual environment setup**:
-   If the script fails, you can set up the environment manually:
-   ```bash
-   # Install uv if not already installed
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   
-   # Create and activate environment
-   uv venv app_env_uv
-   source app_env_uv/bin/activate
-   
-   # Install Python packages
-   uv pip install wheel WeasyPrint markdown pytest python-pptx
-   
-   # Install Node.js dependencies
    npm install --legacy-peer-deps
-   
-   # Install Playwright
-   npx playwright install
    ```
 
-4. **Clean and retry**:
-   If you've attempted installation before, try removing previous environment directories:
-   ```bash
-   rm -rf app_env_venv app_env_uv
-   ./setup_app.sh --install-deps --python-env uv
+2. **Clear npm cache**:
+   ```
+   npm cache clean --force
    ```
 
-### Running the Application
-
-After successful setup:
-
-1. Start the development server:
-   ```bash
-   npm run dev
+3. **Delete node_modules and reinstall**:
+   ```
+   rm -rf node_modules
+   rm package-lock.json
+   npm install --legacy-peer-deps
    ```
 
-2. Or build and start the production version:
-   ```bash
-   npm run build
-   npm start
+4. **Specific @hello-pangea/dnd installation**:
+   ```
+   npm install @hello-pangea/dnd --legacy-peer-deps
    ```
 
-3. Access the application at http://localhost:3000
+### Permission Issues
+
+#### Windows
+1. **Run Command Prompt as Administrator** for global npm installations
+
+2. **Check folder permissions**:
+   - Right-click on project folder
+   - Properties → Security → Edit
+   - Ensure your user has Full Control
+
+#### macOS/Linux
+1. **Fix npm permissions**:
+   ```
+   sudo chown -R $(whoami) ~/.npm
+   sudo chown -R $(whoami) /usr/local/lib/node_modules
+   ```
+
+2. **Use nvm to avoid permission issues** (recommended)
+
+3. **Fix project folder permissions**:
+   ```
+   sudo chown -R $(whoami) /path/to/meeting-minutes-app
+   ```
+
+## Sandbox Deployment Limitations
+
+### Why the Sandbox Environment Has Deployment Issues
+
+The Meeting Minutes App couldn't be deployed in the sandbox environment due to several technical constraints:
+
+1. **Resource Limitations**:
+   - The sandbox environment has limited memory and CPU resources
+   - Next.js builds require significant memory, especially for larger applications
+   - The build process was timing out or failing due to resource constraints
+
+2. **Dependency Resolution Issues**:
+   - The sandbox environment had conflicts with some required dependencies
+   - Specifically, `@hello-pangea/dnd` and `next-i18next` had compatibility issues
+   - These dependencies are critical for the drag-and-drop functionality and internationalization
+
+3. **Network Constraints**:
+   - Some required packages couldn't be downloaded due to network restrictions
+   - This prevented complete installation of all dependencies
+
+4. **Port Binding Restrictions**:
+   - The sandbox environment has limitations on which ports can be bound
+   - This affected the Next.js server's ability to start properly
+
+5. **File System Permissions**:
+   - The sandbox has restricted file system permissions
+   - This affected the build process which requires writing to various directories
+
+### Workarounds for Sandbox Environments
+
+If you need to deploy in a restricted environment similar to the sandbox:
+
+1. **Use Docker Containerization**:
+   - Docker provides isolation and consistent environments
+   - Use the provided docker-compose.yml file
+   - This avoids dependency and permission issues
+
+2. **Reduce Build Resource Requirements**:
+   - Set NODE_OPTIONS environment variable:
+     ```
+     export NODE_OPTIONS="--max-old-space-size=2048"
+     ```
+   - Use production-only builds:
+     ```
+     npm run build --production
+     ```
+
+3. **Pre-build the Application**:
+   - Build the application on a more powerful machine
+   - Deploy only the built artifacts to the restricted environment
+
+4. **Use Static Export**:
+   - For simpler deployments, use Next.js static export:
+     ```
+     next build && next export
+     ```
+   - This creates a static version that can be served by any web server
+
+5. **Serverless Deployment**:
+   - Consider deploying to serverless platforms like Vercel or Netlify
+   - These handle the build process in their environments
+
+## Browser-Specific Issues
+
+### Chrome
+- Ensure you have the latest version (90+)
+- Try disabling extensions if you encounter issues
+- Check console for specific error messages
+
+### Firefox
+- Some drag-and-drop animations may be slower
+- Ensure you have the latest version (88+)
+- Try safe mode if extensions might be causing issues
+
+### Safari
+- WebKit rendering differences may affect some UI elements
+- Ensure you have the latest version (14+)
+- Check privacy settings if uploads aren't working
+
+### Edge
+- Should work similarly to Chrome
+- Ensure you have the latest version (90+)
 
 ## Additional Resources
 
-- [uv Documentation](https://github.com/astral-sh/uv)
+- [Node.js Documentation](https://nodejs.org/docs/latest-v22.x/api/)
+- [npm Troubleshooting](https://docs.npmjs.com/cli/v10/using-npm/troubleshooting)
 - [Next.js Documentation](https://nextjs.org/docs)
-- [WeasyPrint Documentation](https://doc.courtbouillon.org/weasyprint/stable/)
+- [Docker Documentation](https://docs.docker.com/)

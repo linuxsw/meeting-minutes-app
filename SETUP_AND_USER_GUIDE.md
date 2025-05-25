@@ -1,31 +1,54 @@
-# Meeting Minutes Generator - Setup and User Guide
+# Meeting Minutes Generator - Cross-Platform Setup Guide
 
 ## Overview
 
-The Meeting Minutes Generator is a web application that helps you create professional meeting minutes from Microsoft Teams recordings and transcripts. This enhanced version includes AI capabilities to automatically summarize transcripts, extract action items, and process meeting-specific content.
+The Meeting Minutes Generator is a web application that helps you create professional meeting minutes from Microsoft Teams recordings and transcripts. This guide provides detailed setup instructions for Windows, Linux, and macOS environments.
 
-## Setup Guide
+## System Requirements
 
-### Option 1: Running with Docker (Recommended)
+### Node.js and npm
+- **Node.js**: v22.13.0
+- **npm**: v10.9.2
 
-This method includes Ollama for local AI processing without requiring external API keys.
+### Operating System Compatibility
+- **Windows**: Windows 10 or later
+- **macOS**: macOS 10.15 (Catalina) or later
+- **Linux**: Ubuntu 20.04 or later, Debian 10 or later, CentOS 8 or later
+
+### Browser Compatibility
+- **Chrome**: Version 90 or later
+- **Firefox**: Version 88 or later
+- **Safari**: Version 14 or later
+- **Edge**: Version 90 or later
+
+## Setup Options
+
+### Option 1: Running with Docker (Recommended for All Platforms)
+
+This method includes Ollama for local AI processing without requiring external API keys and provides the most consistent experience across platforms.
 
 #### Prerequisites
-- Docker and Docker Compose installed on your Mac
+- Docker Desktop installed:
+  - [Windows Docker Installation](https://docs.docker.com/desktop/install/windows-install/)
+  - [macOS Docker Installation](https://docs.docker.com/desktop/install/mac-install/)
+  - [Linux Docker Installation](https://docs.docker.com/desktop/install/linux-install/)
 - At least 8GB of RAM available for Docker
 
-#### Steps
+#### Steps (Same for All Platforms)
 
-1. Clone the repository to your local machine
-2. Navigate to the project directory
-3. Start the application with Docker Compose:
+1. Clone the repository to your local machine:
+   ```bash
+   git clone https://github.com/linuxsw/meeting-minutes-app.git
+   cd meeting-minutes-app
+   ```
 
-```bash
-docker-compose up -d
-```
+2. Start the application with Docker Compose:
+   ```bash
+   docker-compose up -d
+   ```
 
-4. The application will be available at http://localhost:3000
-5. Ollama will be available at http://localhost:11434
+3. The application will be available at http://localhost:3000
+4. Ollama will be available at http://localhost:11434
 
 #### Downloading Models for Ollama
 
@@ -41,131 +64,223 @@ ollama pull llama2
 
 ### Option 2: Running Directly on Your Machine
 
-#### Prerequisites
-- Node.js 20.x or higher
-- npm or pnpm package manager
+#### Windows Setup
 
-#### Steps
+1. **Install Node.js and npm**:
+   - Download the Node.js installer (v22.13.0) from [nodejs.org](https://nodejs.org/)
+   - Run the installer and follow the installation wizard
+   - Ensure "Add to PATH" is checked during installation
+   - Verify installation by opening Command Prompt and running:
+     ```
+     node -v
+     npm -v
+     ```
 
-1. Clone the repository to your local machine
-2. Navigate to the project directory
-3. Install dependencies:
+2. **Install Git**:
+   - Download Git from [git-scm.com](https://git-scm.com/download/win)
+   - Run the installer with default options
+   - Verify installation: `git --version`
 
-```bash
-npm install
-# or
-pnpm install
+3. **Clone and Setup the Application**:
+   - Open Command Prompt as Administrator
+   - Navigate to your desired directory:
+     ```
+     cd C:\Projects
+     ```
+   - Clone the repository:
+     ```
+     git clone https://github.com/linuxsw/meeting-minutes-app.git
+     cd meeting-minutes-app
+     ```
+   - Install dependencies:
+     ```
+     npm install
+     npm install @hello-pangea/dnd --legacy-peer-deps
+     ```
+   - Build and start the application:
+     ```
+     npm run build
+     npm start
+     ```
+   - Access the application at http://localhost:3000
+
+#### macOS Setup
+
+1. **Install Node.js and npm**:
+   - Option A: Using Homebrew (recommended):
+     ```
+     # Install Homebrew if not already installed
+     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+     
+     # Install Node.js
+     brew install node@22
+     
+     # Add to PATH if needed
+     echo 'export PATH="/usr/local/opt/node@22/bin:$PATH"' >> ~/.zshrc
+     source ~/.zshrc
+     ```
+   
+   - Option B: Using the installer:
+     - Download the macOS installer from [nodejs.org](https://nodejs.org/)
+     - Run the installer and follow the instructions
+   
+   - Verify installation:
+     ```
+     node -v
+     npm -v
+     ```
+
+2. **Install Git** (if not already installed):
+   ```
+   brew install git
+   ```
+
+3. **Clone and Setup the Application**:
+   - Open Terminal
+   - Navigate to your desired directory:
+     ```
+     cd ~/Projects
+     ```
+   - Clone the repository:
+     ```
+     git clone https://github.com/linuxsw/meeting-minutes-app.git
+     cd meeting-minutes-app
+     ```
+   - Install dependencies:
+     ```
+     npm install
+     npm install @hello-pangea/dnd --legacy-peer-deps
+     ```
+   - Build and start the application:
+     ```
+     npm run build
+     npm start
+     ```
+   - Access the application at http://localhost:3000
+
+#### Linux Setup
+
+1. **Install Node.js and npm**:
+   
+   **Ubuntu/Debian**:
+   ```bash
+   # Add NodeSource repository
+   curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+   
+   # Install Node.js
+   sudo apt-get install -y nodejs
+   
+   # Verify installation
+   node -v
+   npm -v
+   ```
+   
+   **CentOS/RHEL**:
+   ```bash
+   # Add NodeSource repository
+   curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+   
+   # Install Node.js
+   sudo yum install -y nodejs
+   
+   # Verify installation
+   node -v
+   npm -v
+   ```
+
+2. **Install Git** (if not already installed):
+   
+   **Ubuntu/Debian**:
+   ```bash
+   sudo apt-get install git
+   ```
+   
+   **CentOS/RHEL**:
+   ```bash
+   sudo yum install git
+   ```
+
+3. **Clone and Setup the Application**:
+   - Open Terminal
+   - Navigate to your desired directory:
+     ```
+     cd ~/projects
+     ```
+   - Clone the repository:
+     ```
+     git clone https://github.com/linuxsw/meeting-minutes-app.git
+     cd meeting-minutes-app
+     ```
+   - Install dependencies:
+     ```
+     npm install
+     npm install @hello-pangea/dnd --legacy-peer-deps
+     ```
+   - Build and start the application:
+     ```
+     npm run build
+     npm start
+     ```
+   - Access the application at http://localhost:3000
+
+## Handling Pre-existing Node.js/npm Installations
+
+If you already have Node.js and npm installed but with different versions, you have several options:
+
+### Using Node Version Manager (recommended)
+
+#### Windows (nvm-windows)
+1. Install nvm-windows from [GitHub](https://github.com/coreybutler/nvm-windows/releases)
+2. Open Command Prompt as Administrator
+3. Install and use the required Node.js version:
+   ```
+   nvm install 22.13.0
+   nvm use 22.13.0
+   ```
+
+#### macOS/Linux (nvm)
+1. Install nvm:
+   ```bash
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+   ```
+2. Close and reopen your terminal
+3. Install and use the required Node.js version:
+   ```bash
+   nvm install 22.13.0
+   nvm use 22.13.0
+   ```
+
+### Using Docker (alternative)
+If you don't want to change your system's Node.js version, use the Docker setup option which isolates the application environment.
+
+### Temporary PATH Modification
+
+#### Windows
+```
+set PATH=C:\path\to\nodejs22;%PATH%
 ```
 
-4. Build the application:
-
-```bash
-npm run build
-# or
-pnpm build
+#### macOS/Linux
+```
+export PATH=/path/to/nodejs22/bin:$PATH
 ```
 
-5. Start the application:
+## Development Mode
+
+To run the application in development mode with hot reloading:
 
 ```bash
-npm start
+npm run dev
 # or
-pnpm start
+pnpm dev
 ```
 
-6. The application will be available at http://localhost:3000
+The application will be available at http://localhost:3000 and will automatically reload when you make changes to the code.
 
 ## User Guide
 
-### Generating Meeting Minutes
-
-1. **Select a Template**: Choose from various meeting templates including regular meetings, project status, training sessions, and agile ceremonies.
-
-2. **Upload Files**: Upload your Microsoft Teams recording (MP4) and/or transcript files. The application supports:
-   - MP4 video with transcript
-   - MP4 video only (with manual speaker identification)
-   - Transcript only
-
-3. **Process Transcript**: If needed, edit speaker names and review the transcript.
-
-4. **Configure AI Processing** (Optional):
-   - Navigate to the AI Configuration page
-   - Select and configure your preferred AI provider
-   - Options include:
-     - No AI (manual processing)
-     - Ollama (local, free)
-     - OpenAI (requires API key)
-     - Together AI (requires API key)
-
-5. **Generate Minutes**: Fill in meeting details and generate minutes in your preferred format (PDF, Word, HTML, or plain text).
-
-### AI Provider Configuration
-
-#### Ollama (Local AI)
-
-1. Navigate to the AI Configuration page
-2. Select "Ollama" as your provider
-3. Configure:
-   - Server URL: http://localhost:11434 (or http://ollama:11434 if using Docker)
-   - Model: Select from available models (Llama 2, Mistral, etc.)
-4. Click "Save Configuration"
-
-#### OpenAI
-
-1. Navigate to the AI Configuration page
-2. Select "OpenAI" as your provider
-3. Configure:
-   - API Key: Enter your OpenAI API key
-   - Model: Select from available models (GPT-3.5 Turbo, GPT-4, etc.)
-4. Click "Save Configuration"
-
-#### Together AI
-
-1. Navigate to the AI Configuration page
-2. Select "Together AI" as your provider
-3. Configure:
-   - API Key: Enter your Together AI API key
-   - Model: Select from available models (Mixtral, Llama 2, etc.)
-4. Click "Save Configuration"
-
-### AI Features
-
-When enabled, AI processing can:
-
-1. **Summarize Transcripts**: Generate concise summaries of meeting discussions
-2. **Extract Action Items**: Automatically identify tasks, assignments, and deadlines
-3. **Process Meeting-Specific Content**: Generate specialized content based on meeting type:
-   - For stand-ups: Organize updates into completed work, planned work, and blockers
-   - For retrospectives: Categorize feedback into what went well and areas for improvement
-   - For training: Extract key learning points and follow-up actions
+For detailed usage instructions, please refer to the [User Guide](./USER_GUIDE.md).
 
 ## Troubleshooting
 
-### Docker Issues
-
-- **Ollama not available**: Ensure the Ollama container is running with `docker ps`. If not, restart with `docker-compose up -d ollama`.
-- **Application not starting**: Check logs with `docker-compose logs app`.
-
-### AI Processing Issues
-
-- **Ollama connection error**: Ensure Ollama is running and the server URL is correct.
-- **API key errors**: Verify your API keys are entered correctly.
-- **Processing timeout**: For large transcripts, try using a smaller model or processing only part of the transcript.
-
-## Adding More AI Providers
-
-The application is designed to be extensible. To add more AI providers:
-
-1. Create a new provider class that implements the AIProvider interface
-2. Register the provider in the AI provider factory
-3. Update the UI to include the new provider option
-
-## Security Notes
-
-- API keys are stored in the browser's localStorage and are not sent to any server except the respective AI provider
-- For production use, consider implementing server-side API key storage with proper encryption
-- When using Docker, ensure your ports are not exposed to the public internet
-
-## Support and Feedback
-
-For issues, questions, or feedback, please open an issue in the GitHub repository or contact the development team.
+For common issues and their solutions, please refer to the [Troubleshooting Guide](./SETUP_TROUBLESHOOTING.md).
