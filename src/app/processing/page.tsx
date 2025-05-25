@@ -355,7 +355,8 @@ export default function ProcessingPage() {
         <Card className="p-4 h-96 overflow-y-auto border-2 border-gray-200 bg-white">
           {transcript && transcript.segments && transcript.segments.length > 0 ? (
             <div className="space-y-3">
-              {transcript.segments
+              {/* Create a new array to avoid modifying the original */}
+              {[...transcript.segments]
                 .sort((a, b) => a.startTime - b.startTime) // Ensure chronological order
                 .map((segment, index) => {
                   const speaker = transcript.speakers.find((s) => s.id === segment.speakerId);
