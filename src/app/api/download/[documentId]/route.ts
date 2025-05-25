@@ -1,35 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server'
+import type { RouteHandlerContext } from 'next/dist/server/web/types'
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { documentId: string } }
-) {
-  const { documentId } = params;
-  const searchParams = request.nextUrl.searchParams;
-  const format = searchParams.get('format') || 'pdf';
+  req: NextRequest,
+  context: RouteHandlerContext<{ documentId: string }>
+): Promise<NextResponse> {
+  const { documentId } = context.params
+  const searchParams = req.nextUrl.searchParams
+  const format = searchParams.get('format') || 'pdf'
 
   if (!documentId) {
     return NextResponse.json(
       { error: 'Document ID is required' },
       { status: 400 }
-    );
+    )
   }
 
-  let content = '';
-  let contentType = '';
-  let fileExtension = '';
+  let content = ''
+  let contentType = ''
+  let fileExtension = ''
 
   switch (format) {
     case 'pdf':
-      content = 'Sample PDF content';
-      contentType = 'application/pdf';
-      fileExtension = 'pdf';
-      break;
+      content = 'Sample PDF content'
+      contentType = 'application/pdf'
+      fileExtension = 'pdf'
+      break
     case 'word':
-      content = 'Sample Word document content';
-      contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-      fileExtension = 'docx';
-      break;
+      content = 'Sample Word document content'
+      contentType =
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      fileExtension = 'docx'
+      break
     case 'html':
       content = `<!DOCTYPE html>
 <html>
@@ -65,10 +67,10 @@ export async function GET(
     <div>- John to complete task A by Friday<br>- Jane to review document B<br>- Bob to schedule follow-up meeting</div>
   </div>
 </body>
-</html>`;
-      contentType = 'text/html';
-      fileExtension = 'html';
-      break;
+</html>`
+      contentType = 'text/html'
+      fileExtension = 'html'
+      break
     default:
       content = `Meeting Minutes
 Date: ${new Date().toLocaleDateString()}
@@ -85,17 +87,20 @@ Sample discussion content would appear here based on the transcript.
 Action Items:
 - John to complete task A by Friday
 - Jane to review document B
-- Bob to schedule follow-up meeting`;
-      contentType = 'text/plain';
-      fileExtension = 'txt';
+- Bob to schedule follow-up meeting`
+      contentType = 'text/plain'
+      fileExtension = 'txt'
   }
 
-  const headers = new Headers();
-  headers.set('Content-Type', contentType);
-  headers.set('Content-Disposition', `attachment; filename="meeting-minutes-${documentId}.${fileExtension}"`);
+  const headers = new Headers()
+  headers.set('Content-Type', contentType)
+  headers.set(
+    'Content-Disposition',
+    `attachment; filename="meeting-minutes-${documentId}.${fileExtension}"`
+  )
 
   return new NextResponse(content, {
     status: 200,
     headers
-  });
+  })
 }
