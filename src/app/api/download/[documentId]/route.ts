@@ -1,49 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { join } from 'path'
-import { writeFile } from 'fs/promises'
 
-// Simulated document generation based on template and format
 export async function GET(
   request: NextRequest,
   { params }: { params: { documentId: string } }
 ) {
-  try {
-    const { documentId } = params
-    const searchParams = request.nextUrl.searchParams
-    const format = searchParams.get('format') || 'pdf'
-    
-    if (!documentId) {
-      return NextResponse.json(
-        { error: 'Document ID is required' },
-        { status: 400 }
-      )
-    }
-    
-    // In a real application, this would:
-    // 1. Retrieve the document from storage based on documentId
-    // 2. Convert it to the requested format if needed
-    // 3. Return the file for download
-    
-    // For now, we'll generate a simple sample document
-    let content = ''
-    let contentType = ''
-    let fileExtension = ''
-    
-    switch (format) {
-      case 'pdf':
-        // In a real app, we would generate a PDF
-        content = 'Sample PDF content'
-        contentType = 'application/pdf'
-        fileExtension = 'pdf'
-        break
-      case 'word':
-        // In a real app, we would generate a DOCX
-        content = 'Sample Word document content'
-        contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        fileExtension = 'docx'
-        break
-      case 'html':
-        content = `<!DOCTYPE html>
+  const { documentId } = params;
+  const searchParams = request.nextUrl.searchParams;
+  const format = searchParams.get('format') || 'pdf';
+
+  if (!documentId) {
+    return NextResponse.json(
+      { error: 'Document ID is required' },
+      { status: 400 }
+    );
+  }
+
+  let content = '';
+  let contentType = '';
+  let fileExtension = '';
+
+  switch (format) {
+    case 'pdf':
+      content = 'Sample PDF content';
+      contentType = 'application/pdf';
+      fileExtension = 'pdf';
+      break;
+    case 'word':
+      content = 'Sample Word document content';
+      contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      fileExtension = 'docx';
+      break;
+    case 'html':
+      content = `<!DOCTYPE html>
 <html>
 <head>
   <title>Meeting Minutes</title>
@@ -77,12 +65,12 @@ export async function GET(
     <div>- John to complete task A by Friday<br>- Jane to review document B<br>- Bob to schedule follow-up meeting</div>
   </div>
 </body>
-</html>`
-        contentType = 'text/html'
-        fileExtension = 'html'
-        break
-      default: // text
-        content = `Meeting Minutes
+</html>`;
+      contentType = 'text/html';
+      fileExtension = 'html';
+      break;
+    default:
+      content = `Meeting Minutes
 Date: ${new Date().toLocaleDateString()}
 Attendees: John Doe, Jane Smith, Bob Johnson
 
@@ -97,25 +85,17 @@ Sample discussion content would appear here based on the transcript.
 Action Items:
 - John to complete task A by Friday
 - Jane to review document B
-- Bob to schedule follow-up meeting`
-        contentType = 'text/plain'
-        fileExtension = 'txt'
-    }
-    
-    // Set headers for file download
-    const headers = new Headers()
-    headers.set('Content-Type', contentType)
-    headers.set('Content-Disposition', `attachment; filename="meeting-minutes-${documentId}.${fileExtension}"`)
-    
-    return new NextResponse(content, {
-      status: 200,
-      headers
-    })
-  } catch (error) {
-    console.error('Error generating document:', error)
-    return NextResponse.json(
-      { error: 'Failed to generate document' },
-      { status: 500 }
-    )
+- Bob to schedule follow-up meeting`;
+      contentType = 'text/plain';
+      fileExtension = 'txt';
   }
+
+  const headers = new Headers();
+  headers.set('Content-Type', contentType);
+  headers.set('Content-Disposition', `attachment; filename="meeting-minutes-${documentId}.${fileExtension}"`);
+
+  return new NextResponse(content, {
+    status: 200,
+    headers
+  });
 }
