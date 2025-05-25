@@ -355,15 +355,17 @@ export default function ProcessingPage() {
         <Card className="p-4 h-96 overflow-y-auto border-2 border-gray-200 bg-white">
           {transcript && transcript.segments && transcript.segments.length > 0 ? (
             <div className="space-y-3">
-              {transcript.segments.map((segment, index) => {
-                const speaker = transcript.speakers.find((s) => s.id === segment.speakerId);
-                return (
-                  <div key={segment.id || index} className="pb-2 border-b border-gray-100 last:border-0">
-                    <span className="font-semibold text-black">{speaker?.name || 'Unknown'}:</span>{' '}
-                    <span className="text-black">{segment.text}</span>
-                  </div>
-                );
-              })}
+              {transcript.segments
+                .sort((a, b) => a.startTime - b.startTime) // Ensure chronological order
+                .map((segment, index) => {
+                  const speaker = transcript.speakers.find((s) => s.id === segment.speakerId);
+                  return (
+                    <div key={segment.id || index} className="pb-2 border-b border-gray-100 last:border-0">
+                      <span className="font-semibold text-black">{speaker?.name || 'Unknown'}:</span>{' '}
+                      <span className="text-black">{segment.text}</span>
+                    </div>
+                  );
+                })}
             </div>
           ) : (
             <div className="text-gray-500 h-full flex items-center justify-center">
@@ -440,9 +442,8 @@ export default function ProcessingPage() {
       </div>
       
       <div className="flex justify-end">
-        <Button onClick={handleContinue} className="flex items-center">
-          Continue to Generate Minutes
-          <ArrowRight className="ml-2 h-4 w-4" />
+        <Button onClick={handleContinue} className="bg-primary text-white">
+          Continue <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </div>
