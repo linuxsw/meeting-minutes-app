@@ -30,6 +30,7 @@ export default function ProcessingPage() {
   const [meetingDate, setMeetingDate] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [transcriptSegments, setTranscriptSegments] = useState<any[]>([])
   
   useEffect(() => {
     // Try to load transcript from session storage - check both keys for compatibility
@@ -49,6 +50,13 @@ export default function ProcessingPage() {
         // If we have a parsed transcript in JSON format
         const parsedTranscript = JSON.parse(savedTranscript)
         console.log('Parsed transcript segments count:', parsedTranscript.segments?.length || 0);
+        
+        // Store segments in a separate state variable to ensure they're preserved
+        if (parsedTranscript.segments && parsedTranscript.segments.length > 0) {
+          console.log('Setting transcript segments to:', parsedTranscript.segments.length, 'items');
+          setTranscriptSegments([...parsedTranscript.segments]);
+        }
+        
         setTranscript(parsedTranscript)
         
         // Set meeting metadata if available
@@ -115,11 +123,20 @@ export default function ProcessingPage() {
     
     try {
       console.log('Parsing raw transcript content with filename:', fileName);
+      console.log('Raw transcript content (first 200 chars):', transcriptContent.substring(0, 200));
+      
       // Parse the transcript
       parseTranscript(transcriptContent, fileName || undefined)
         .then((result) => {
           console.log('Successfully parsed transcript');
           console.log('Parsed transcript segments count:', result.segments?.length || 0);
+          
+          // Store segments in a separate state variable to ensure they're preserved
+          if (result.segments && result.segments.length > 0) {
+            console.log('Setting transcript segments to:', result.segments.length, 'items');
+            setTranscriptSegments([...result.segments]);
+          }
+          
           setTranscript(result)
           
           // Store the parsed transcript for future use
@@ -323,6 +340,10 @@ export default function ProcessingPage() {
     )
   }
   
+  // Use the separate transcriptSegments state to ensure we have all segments
+  const displaySegments = transcriptSegments.length > 0 ? transcriptSegments : 
+                         (transcript && transcript.segments ? transcript.segments : []);
+  
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Process Transcript</h1>
@@ -353,15 +374,15 @@ export default function ProcessingPage() {
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-2">Transcript Preview</h2>
         <Card className="p-4 h-96 overflow-y-auto border-2 border-gray-200 bg-white">
-          {transcript && transcript.segments && transcript.segments.length > 0 ? (
+          {displaySegments && displaySegments.length > 0 ? (
             <div className="space-y-3">
-              {/* Create a new array to avoid modifying the original */}
-              {[...transcript.segments]
-                .sort((a, b) => a.startTime - b.startTime) // Ensure chronological order
+              {/* Use the separate state variable for rendering */}
+              {displaySegments
+                .sort((a, b) => a.startTime - b.startTime)
                 .map((segment, index) => {
-                  const speaker = transcript.speakers.find((s) => s.id === segment.speakerId);
+                  const speaker = transcript?.speakers.find((s) => s.id === segment.speakerId);
                   return (
-                    <div key={segment.id || index} className="pb-2 border-b border-gray-100 last:border-0">
+                    <div key={`segment-${index}`} className="pb-2 border-b border-gray-100 last:border-0">
                       <span className="font-semibold text-black">{speaker?.name || 'Unknown'}:</span>{' '}
                       <span className="text-black">{segment.text}</span>
                     </div>
@@ -375,7 +396,7 @@ export default function ProcessingPage() {
           )}
         </Card>
         <div className="mt-2 text-xs text-gray-500">
-          {transcript?.segments?.length || 0} segments in transcript
+          {displaySegments?.length || 0} segments in transcript
         </div>
       </div>
       
@@ -425,7 +446,7 @@ export default function ProcessingPage() {
                               </div>
                             ))}
                             {speaker.segments.length > 3 && (
-                              <div className="text-gray-700 font-medium">
+                              <div className="text-xs text-gray-500 mt-1">
                                 +{speaker.segments.length - 3} more segments
                               </div>
                             )}
@@ -443,8 +464,11 @@ export default function ProcessingPage() {
       </div>
       
       <div className="flex justify-end">
-        <Button onClick={handleContinue} className="bg-primary text-white">
-          Continue <ArrowRight className="ml-2 h-4 w-4" />
+        <Button 
+          onClick={handleContinue} 
+          className="bg-white text-black hover:bg-gray-100 border border-gray-300"
+        >
+          Continue to Generate Report
         </Button>
       </div>
     </div>
